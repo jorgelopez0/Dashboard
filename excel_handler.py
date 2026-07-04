@@ -6,7 +6,7 @@ import openpyxl
 from datetime import datetime
 from collections import defaultdict
 
-EXCEL_PATH = str(Path(__file__).parent / 'cash.xlsx')
+EXCEL_PATH = 'cash.xlsx'
 BACKUP_DIR = Path(EXCEL_PATH).parent / 'excel_backups'
 MAX_BACKUPS = 50
 
