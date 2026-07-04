@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+{% block title %}Plan · Entrenamientos{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h4 class="mb-0 fw-bold">Plan de Entrenamientos</h4>
+    <small class="text-muted">Semana {{ current_week_num }} · {{ weeks | length }} semanas registradas</small>
+  </div>
+  <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal">
+    <i class="bi bi-plus-lg me-1"></i>Añadir actividad
+  </button>
+</div>
+
+{% if not weeks %}
+<div class="card p-4 text-center text-muted">
+  Todavía no hay actividades. Añade la primera con el botón de arriba.
+</div>
+{% endif %}
+
+{% set current_title = namespace(name='') %}
+{% for w in weeks %}
+
+  {# Phase title header #}
+  {% if w.title and w.title != current_title.name %}
+    {% set current_title.name = w.title %}
+    <div class="d-flex align-items-center gap-2 mb-2 mt-4">
+      <div style="height:2px; width:20px; background:var(--strava);"></div>
+      <span class="text-strava fw-semibold" style="font-size:.8rem; text-transform:uppercase; letter-spacing:1px">
+        {{ w.title }}
+      </span>
+      <button type="button" class="btn btn-sm btn-link text-muted p-0" style="font-size:.7rem"
+              data-bs-toggle="modal" data-bs-target="#titleModal{{ w.num }}" title="Editar título">
+        <i class="bi bi-pencil"></i>
+      </button>
+    </div>
+  {% endif %}
+
+  <div class="card mb-2 week-card {% if w.num == current_week_num %}current{% endif %}">
+    <!-- week header (accordion toggle) -->
+    <div class="card-body py-2 px-3" style="cursor:pointer"
+         data-bs-toggle="collapse" data-bs-target="#week{{ w.num }}">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-3">
+          <span class="week-num fw-bold" style="font-size:1.1rem; min-width:28px">{{ w.num }}</span>
+          <div>
+            <span class="fw-semibold">
+              {{ w.start[5:] }} – {{ w.end[5:] }}
+            </span>
+            {% if w.num == current_week_num %}
+            <span class="badge bg-strava ms-2" style="font-size:.65rem">ACTUAL</span>
+            {% endif %}
+            {% if not w.title %}
+            <button type="button" class="btn btn-sm btn-link text-muted p-0 ms-2" style="font-size:.7rem"
+                    data-bs-toggle="modal" data-bs-target="#titleModal{{ w.num }}">
+              + título
+            </button>
+            {% endif %}
+          </div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          {% if w.run_km %}<span class="text-muted" style="font-size:.8rem">{{ w.run_km }} km</span>{% endif %}
+          <!-- progress bar -->
+          <div style="width:80px">
+            <div class="progress" style="height:5px">
+              <div class="progress-bar {% if w.pct_done == 100 %}bg-success{% else %}bg-strava{% endif %}"
+                   style="width:{{ w.pct_done }}%"></div>
+            </div>
+            <div class="text-muted text-end" style="font-size:.65rem">{{ w.done_count }}/{{ w.total_count }}</div>
+          </div>
+          <i class="fa fa-chevron-down text-muted" style="font-size:.7rem"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- activities list -->
+    <div id="week{{ w.num }}" class="collapse {% if w.num == current_week_num %}show{% endif %}">
+      <div class="px-3 pb-2 pt-1" style="border-top:1px solid #222">
+        {% for a in w.activities %}
+        <div class="d-flex align-items-center gap-2 py-1
+          {% if not loop.last %}border-bottom{% endif %}"
+          style="border-color:#1e1e1e !important">
+          <!-- checkbox indicator -->
+          <div style="width:16px; flex-shrink:0">
+            {% if a.done %}
+              <i class="fa fa-check-circle text-success" style="font-size:.85rem"></i>
+            {% elif a.date == today.isoformat() %}
+              <i class="fa fa-circle-dot text-strava" style="font-size:.85rem"></i>
+            {% else %}
+              <i class="fa fa-circle text-secondary" style="font-size:.85rem; opacity:.3"></i>
+            {% endif %}
+          </div>
+          <!-- content -->
+          <div class="flex-grow-1">
+            <span class="text-muted" style="font-size:.75rem">{{ a.day }}</span>
+            <span class="badge ms-1" style="background:#2a2a2a; font-size:.65rem">{{ a.type | plan_type_label }}</span>
+            <span class="ms-2" style="font-size:.85rem">
+              {% if a.done %}<del class="text-muted">{{ a.desc }}</del>
+              {% elif a.date == today.isoformat() %}<strong class="text-white">{{ a.desc }}</strong>
+              {% else %}{{ a.desc }}{% endif %}
+            </span>
+          </div>
+          <!-- km (real si está hecha, objetivo si no) -->
+          {% if a.display_km %}
+          <div class="text-strava fw-semibold" style="font-size:.8rem; flex-shrink:0">
+            {{ a.display_km }} km
+          </div>
+          {% endif %}
+          <!-- acciones -->
+          <div class="btn-group btn-group-sm flex-shrink-0">
+            <button type="button" class="btn btn-outline-info py-0 px-1" title="Editar"
+                    data-bs-toggle="modal" data-bs-target="#editModal{{ a.id }}">
+              <i class="bi bi-pencil" style="font-size:.7rem"></i>
+            </button>
+            <form method="post" action="/plan/{{ a.id }}/delete" class="d-inline"
+                  onsubmit="return confirm('¿Eliminar esta actividad?');">
+              <button type="submit" class="btn btn-outline-danger py-0 px-1" title="Eliminar">
+                <i class="bi bi-x-lg" style="font-size:.7rem"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endfor %}
+
+<!-- Modales título de semana -->
+{% for w in weeks %}
+<div class="modal fade" id="titleModal{{ w.num }}" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h5 class="modal-title">Título — Semana {{ w.num }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="/plan/week/{{ w.start }}/title">
+        <div class="modal-body">
+          <label class="form-label">Título (p.ej. "Fase 2 · Descarga")</label>
+          <input type="text" name="title" class="form-control" value="{{ w.title }}">
+          <small class="text-muted">Se muestra como separador; si varias semanas seguidas tienen el mismo título, se agrupan.</small>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Modales Editar -->
+{% for w in weeks %}
+{% for a in w.activities %}
+<div class="modal fade" id="editModal{{ a.id }}" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Actividad</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="/plan/{{ a.id }}/edit">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label">Fecha *</label>
+              <input type="date" name="date" class="form-control" value="{{ a.date }}" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Tipo *</label>
+              <select name="type" class="form-select" required>
+                {% for t in types %}
+                <option value="{{ t }}" {% if t == a.type %}selected{% endif %}>{{ type_labels[t] }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-8">
+              <label class="form-label">Descripción *</label>
+              <input type="text" name="desc" class="form-control" value="{{ a.desc }}" required>
+            </div>
+            <div class="col-4">
+              <label class="form-label">Km objetivo</label>
+              <input type="number" name="target_km" step="0.1" min="0" class="form-control" value="{{ a.target_km if a.target_km is not none else '' }}">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endfor %}
+
+<!-- Modal Añadir -->
+<div class="modal fade" id="addModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h5 class="modal-title">Añadir Actividad</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="/plan/add">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label">Fecha *</label>
+              <input type="date" name="date" class="form-control" id="addDateInput" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Tipo *</label>
+              <select name="type" class="form-select" required>
+                {% for t in types %}
+                <option value="{{ t }}">{{ type_labels[t] }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-8">
+              <label class="form-label">Descripción *</label>
+              <input type="text" name="desc" class="form-control" placeholder="Ej: 8 km suaves, Rutina Pecho..." required>
+            </div>
+            <div class="col-4">
+              <label class="form-label">Km objetivo</label>
+              <input type="number" name="target_km" step="0.1" min="0" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var d = document.getElementById('addDateInput');
+    if (d) d.value = new Date().toISOString().split('T')[0];
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+{% block title %}{{ act.name if act else 'Actividad' }} · Detalle{% endblock %}
+
+{% block content %}
+{% if not act %}
+<div class="card p-4 text-center text-muted">
+  No se pudo cargar esta actividad.
+</div>
+{% else %}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <a href="{{ url_for('activities') }}" class="text-muted text-decoration-none" style="font-size:.85rem">
+      <i class="fa fa-arrow-left me-1"></i>Actividades
+    </a>
+    <h4 class="fw-bold mb-0 mt-1">
+      {{ act.name }}
+      {% if is_pr %}<span class="badge bg-warning text-dark ms-2">PR</span>{% endif %}
+    </h4>
+    <small class="text-muted">{{ act.date }}</small>
+  </div>
+  {% if act.aerobic_te %}
+  <span class="te-badge te-{{ act.aerobic_te | int }}">
+    {{ act.training_label or 'TE ' ~ act.aerobic_te }}
+  </span>
+  {% endif %}
+</div>
+
+<!-- summary cards -->
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-2">
+    <div class="card p-3 metric-card text-center h-100">
+      <div class="metric-lbl">Distancia</div>
+      <div class="metric-val text-strava" style="font-size:1.6rem">{{ act.distance_km }}</div>
+      <small class="text-muted">km</small>
+    </div>
+  </div>
+  <div class="col-6 col-lg-2">
+    <div class="card p-3 metric-card text-center h-100">
+      <div class="metric-lbl">Tiempo</div>
+      <div class="metric-val" style="font-size:1.6rem">{{ act.duration }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-2">
+    <div class="card p-3 metric-card text-center h-100">
+      <div class="metric-lbl">Ritmo</div>
+      <div class="metric-val" style="font-size:1.6rem"><code>{{ act.pace }}</code></div>
+      <small class="text-muted">/km</small>
+    </div>
+  </div>
+  <div class="col-6 col-lg-2">
+    <div class="card p-3 metric-card text-center h-100">
+      <div class="metric-lbl">FC media / máx</div>
+      <div class="metric-val text-danger" style="font-size:1.6rem">{{ act.avg_hr or '–' }}<small class="text-muted fs-6"> / {{ act.max_hr or '–' }}</small></div>
+      <small class="text-muted">bpm</small>
+    </div>
+  </div>
+  <div class="col-6 col-lg-2">
+    <div class="card p-3 metric-card text-center h-100">
+      <div class="metric-lbl">Cadencia</div>
+      <div class="metric-val" style="font-size:1.6rem">{{ act.cadence or '–' }}</div>
+      <small class="text-muted">spm</small>
+    </div>
+  </div>
+  <div class="col-6 col-lg-2">
+    <div class="card p-3 metric-card text-center h-100">
+      <div class="metric-lbl">Desnivel +/-</div>
+      <div class="metric-val text-info" style="font-size:1.6rem">{{ act.elevation_gain }}<small class="text-muted fs-6">/{{ act.elevation_loss }}</small></div>
+      <small class="text-muted">m</small>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 metric-card text-center h-100">
+      <div class="metric-lbl">Calorías</div>
+      <div class="metric-val" style="font-size:1.4rem">{{ act.calories or '–' }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 metric-card text-center h-100">
+      <div class="metric-lbl">Efecto aeróbico / anaeróbico</div>
+      <div class="metric-val" style="font-size:1.4rem">{{ act.aerobic_te or '–' }} / {{ act.anaerobic_te or '–' }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 metric-card text-center h-100">
+      <div class="metric-lbl">Potencia media</div>
+      <div class="metric-val" style="font-size:1.4rem">{{ act.avg_power or '–' }}<small class="text-muted fs-6">W</small></div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 metric-card text-center h-100">
+      <div class="metric-lbl">Pasos</div>
+      <div class="metric-val" style="font-size:1.4rem">{{ act.steps or '–' }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- charts -->
+<div class="row g-3 mb-3">
+  <div class="col-lg-6">
+    <div class="card p-3">
+      <div class="fw-semibold mb-2"><i class="fa fa-heart text-danger me-2"></i>Frecuencia cardíaca</div>
+      <div class="chart-box-sm"><canvas id="hrChart"></canvas></div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card p-3">
+      <div class="fw-semibold mb-2"><i class="fa fa-gauge-high text-strava me-2"></i>Ritmo</div>
+      <div class="chart-box-sm"><canvas id="paceChart"></canvas></div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card p-3">
+      <div class="fw-semibold mb-2"><i class="fa fa-shoe-prints text-info me-2"></i>Cadencia</div>
+      <div class="chart-box-sm"><canvas id="cadenceChart"></canvas></div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card p-3">
+      <div class="fw-semibold mb-2"><i class="fa fa-mountain text-warning me-2"></i>Elevación</div>
+      <div class="chart-box-sm"><canvas id="elevChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- splits table -->
+<div class="card p-3">
+  <div class="fw-semibold mb-3">Parciales</div>
+  {% if splits %}
+  <div class="table-responsive">
+    <table class="table table-hover table-sm align-middle mb-0" style="font-size:.83rem">
+      <thead class="text-muted">
+        <tr>
+          <th>#</th><th>Tipo</th><th>Dist</th><th>Tiempo</th>
+          <th>Ritmo</th><th>FC media</th><th>FC máx</th><th>Cadencia</th><th>Desnivel +</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in splits %}
+        <tr>
+          <td class="text-muted">{{ s.n }}</td>
+          <td><small class="text-muted">{{ s.intensity }}</small></td>
+          <td class="fw-bold text-strava">{{ s.distance_km }}</td>
+          <td>{{ s.duration }}</td>
+          <td><code style="font-size:.8rem;color:#ddd">{{ s.pace }}</code></td>
+          <td>{% if s.avg_hr %}<span class="text-danger">{{ s.avg_hr }}</span>{% endif %}</td>
+          <td>{% if s.max_hr %}<span class="text-danger">{{ s.max_hr }}</span>{% endif %}</td>
+          <td>{% if s.cadence %}{{ s.cadence }} spm{% endif %}</td>
+          <td>{% if s.elev_gain %}+{{ s.elev_gain }}m{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-muted mb-0">No hay parciales disponibles para esta actividad.</p>
+  {% endif %}
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if act %}
+<script>
+fetch('/api/activity/{{ activity_id }}/series').then(r => r.json()).then(series => {
+  const labels = series.map(p => {
+    const t = p.t || 0;
+    const m = Math.floor(t / 60), s = Math.floor(t % 60);
+    return m + ':' + String(s).padStart(2, '0');
+  });
+
+  const baseOpts = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { grid: { color: '#222' } },
+      x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } }
+    }
+  };
+
+  new Chart(document.getElementById('hrChart'), {
+    type: 'line',
+    data: { labels, datasets: [{
+      data: series.map(p => p.hr),
+      borderColor: '#f87171', backgroundColor: 'rgba(248,113,113,.1)',
+      borderWidth: 2, pointRadius: 0, tension: .25, fill: true,
+    }] },
+    options: baseOpts,
+  });
+
+  new Chart(document.getElementById('paceChart'), {
+    type: 'line',
+    data: { labels, datasets: [{
+      data: series.map(p => p.pace_s_km),
+      borderColor: '#FC4C02', backgroundColor: 'rgba(252,76,2,.1)',
+      borderWidth: 2, pointRadius: 0, tension: .25, fill: true,
+    }] },
+    options: {
+      ...baseOpts,
+      scales: {
+        ...baseOpts.scales,
+        y: { ...baseOpts.scales.y, reverse: true,
+          ticks: { callback: v => Math.floor(v/60) + ':' + String(Math.round(v%60)).padStart(2,'0') } },
+      },
+    },
+  });
+
+  new Chart(document.getElementById('cadenceChart'), {
+    type: 'line',
+    data: { labels, datasets: [{
+      data: series.map(p => p.cadence),
+      borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,.1)',
+      borderWidth: 2, pointRadius: 0, tension: .25, fill: true,
+    }] },
+    options: baseOpts,
+  });
+
+  new Chart(document.getElementById('elevChart'), {
+    type: 'line',
+    data: { labels, datasets: [{
+      data: series.map(p => p.elevation),
+      borderColor: '#facc15', backgroundColor: 'rgba(250,204,21,.15)',
+      borderWidth: 2, pointRadius: 0, tension: .15, fill: true,
+    }] },
+    options: baseOpts,
+  });
+});
+</script>
+{% endif %}
+{% endblock %}

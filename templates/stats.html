@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+{% block title %}Estadísticas · Entrenamientos{% endblock %}
+
+{% block content %}
+<h4 class="fw-bold mb-4">Estadísticas de salud</h4>
+
+<!-- ROW 1: streaks + yearly totals -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 metric-card text-center h-100">
+      <i class="fa fa-fire text-strava fs-3 mb-1"></i>
+      <div class="metric-lbl">Racha pasos</div>
+      <div class="metric-val text-strava">{{ step_streak }}</div>
+      <small class="text-muted">días consecutivos</small>
+      <div class="mt-1" style="font-size:.75rem; color:#888">
+        Meta: {{ summary.step_goal | default(7760) | int }} pasos/día
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 metric-card text-center h-100">
+      <i class="fa fa-stairs text-info fs-3 mb-1"></i>
+      <div class="metric-lbl">Racha pisos</div>
+      <div class="metric-val text-info">{{ floors_streak }}</div>
+      <small class="text-muted">días consecutivos</small>
+      <div class="mt-1" style="font-size:.75rem; color:#888">Meta: {{ summary.floor_goal | default(10) }} pisos/día</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 metric-card text-center h-100">
+      <i class="fa fa-person-running text-strava fs-3 mb-1"></i>
+      <div class="metric-lbl">Km este año</div>
+      <div class="metric-val text-strava">{{ yearly.total_km }}</div>
+      <small class="text-muted">{{ yearly.total_sessions }} actividades</small>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 metric-card text-center h-100">
+      <i class="fa fa-chart-bar text-warning fs-3 mb-1"></i>
+      <div class="metric-lbl">Media semanal</div>
+      <div class="metric-val text-warning">{{ yearly.avg_week_km }}</div>
+      <small class="text-muted">km / semana</small>
+      <div class="mt-1" style="font-size:.75rem; color:#888">Máx: {{ yearly.max_week_km }} km</div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 2: Resting HR chart + HR info -->
+<div class="row g-3 mb-4">
+  <div class="col-lg-8">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="fw-semibold"><i class="fa fa-heart text-danger me-2"></i>FC en reposo — últimos 30 días</span>
+        {% if rhr_history %}
+        {% set avg_rhr = (rhr_history | sum(attribute='rhr')) / (rhr_history | length) %}
+        <span class="text-muted" style="font-size:.8rem">Media: <strong class="text-danger">{{ avg_rhr | round(0) | int }} bpm</strong></span>
+        {% endif %}
+      </div>
+      <div class="chart-box">
+        <canvas id="rhrChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card p-3 h-100">
+      <div class="fw-semibold mb-3"><i class="fa fa-heart-pulse text-danger me-2"></i>Frecuencia Cardíaca</div>
+
+      <div class="mb-3 p-2 rounded" style="background:#1e1e1e">
+        <div class="metric-lbl">FC Máxima registrada</div>
+        <div class="fw-bold fs-3 text-danger">{{ max_hr }} <small class="text-muted fs-6">bpm</small></div>
+        <small class="text-muted">Método Karvonen para zonas</small>
+      </div>
+
+      {% if summary.resting_hr %}
+      <div class="mb-3 p-2 rounded" style="background:#1e1e1e">
+        <div class="metric-lbl">FC Reposo hoy</div>
+        <div class="fw-bold fs-3 text-danger">{{ summary.resting_hr }} <small class="text-muted fs-6">bpm</small></div>
+      </div>
+      {% endif %}
+
+      {% if summary.resting_hr and max_hr %}
+      {% set hrr = max_hr - summary.resting_hr %}
+      <div class="p-2 rounded" style="background:#1e1e1e">
+        <div class="metric-lbl">Reserva FC (HRR)</div>
+        <div class="fw-bold fs-4 text-warning">{{ hrr }} <small class="text-muted fs-6">bpm</small></div>
+        <small class="text-muted">{{ max_hr }} – {{ summary.resting_hr }}</small>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ROW 3: HR zones table + doughnut -->
+<div class="row g-3 mb-4">
+  <div class="col-lg-7">
+    <div class="card p-3 h-100">
+      <div class="fw-semibold mb-3"><i class="fa fa-layer-group me-2 text-strava"></i>Zonas de Frecuencia Cardíaca</div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0" style="font-size:.85rem">
+          <thead class="text-muted">
+            <tr><th>Zona</th><th>Nombre</th><th>Rango (bpm)</th><th>Últimos 30 días</th></tr>
+          </thead>
+          <tbody>
+            {% for z in hr_zones %}
+            {% set zt = zone_time | selectattr('zone', 'equalto', z.zone) | first %}
+            <tr>
+              <td>
+                <span class="fw-bold" style="color:{{ z.color }}">Z{{ z.zone }}</span>
+              </td>
+              <td>{{ z.name }}</td>
+              <td>
+                <code style="color:#ddd; font-size:.8rem">{{ z.min_bpm }}–{{ z.max_bpm }}</code>
+              </td>
+              <td>
+                {% if zt and zt.minutes > 0 %}
+                <div class="d-flex align-items-center gap-2">
+                  <div class="flex-grow-1">
+                    {% set total_min = zone_time | sum(attribute='minutes') %}
+                    <div class="zone-bar" style="background:{{ z.color }};
+                      width:{{ [[(zt.minutes / [total_min,1]|max * 100)|round|int, 2]|max, 100]|min }}%;
+                      opacity:.8;"></div>
+                  </div>
+                  <span style="color:{{ z.color }}; font-size:.8rem; min-width:55px">{{ zt.minutes }} min</span>
+                </div>
+                {% else %}
+                <span class="text-muted" style="font-size:.8rem">–</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card p-3 h-100">
+      <div class="fw-semibold mb-2">Distribución de tiempo en zonas</div>
+      <div class="chart-box">
+        <canvas id="zoneChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 4: VO2max chart -->
+{% if vo2max %}
+<div class="card p-3 mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <span class="fw-semibold"><i class="fa fa-lungs text-info me-2"></i>VO2max — últimos 90 días</span>
+    <span class="badge" style="background:#1a2a3a; color:#60a5fa; font-size:.85rem">
+      Actual: {{ vo2max[-1].vo2max if vo2max else '–' }} ml/kg/min
+    </span>
+  </div>
+  <div class="chart-box">
+    <canvas id="vo2Chart"></canvas>
+  </div>
+</div>
+{% endif %}
+
+<!-- ROW 5: steps last 30 days -->
+<div class="card p-3">
+  <div class="fw-semibold mb-2"><i class="fa fa-shoe-prints me-2 text-strava"></i>Pasos — últimos 30 días</div>
+  <div class="chart-box">
+    <canvas id="steps30Chart"></canvas>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ── Resting HR chart ──
+const rhrData = {{ rhr_history | tojson }};
+if (rhrData.length) {
+  new Chart(document.getElementById('rhrChart'), {
+    type: 'line',
+    data: {
+      labels: rhrData.map(d => d.date.slice(5)),
+      datasets: [{
+        label: 'FC reposo (bpm)',
+        data: rhrData.map(d => d.rhr),
+        borderColor: '#f87171',
+        backgroundColor: 'rgba(248,113,113,.1)',
+        borderWidth: 2,
+        pointRadius: 3,
+        tension: .3,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { grid: { color: '#222' }, min: 40 },
+        x: { grid: { display: false }, ticks: { maxTicksLimit: 10 } }
+      }
+    }
+  });
+}
+
+// ── HR zone doughnut ──
+const zData  = {{ zone_time | tojson }};
+const zZones = {{ hr_zones | tojson }};
+const zColors = zZones.map(z => z.color);
+const zMins  = zData.map(z => z.minutes);
+const zNames = zZones.map(z => 'Z' + z.zone + ' ' + z.name);
+
+new Chart(document.getElementById('zoneChart'), {
+  type: 'doughnut',
+  data: {
+    labels: zNames,
+    datasets: [{ data: zMins, backgroundColor: zColors, borderWidth: 0 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} min` } }
+    },
+    cutout: '60%',
+  }
+});
+
+// ── VO2max chart ──
+const voData = {{ vo2max | tojson }};
+if (voData.length && document.getElementById('vo2Chart')) {
+  new Chart(document.getElementById('vo2Chart'), {
+    type: 'line',
+    data: {
+      labels: voData.map(d => d.date.slice(5)),
+      datasets: [{
+        label: 'VO2max',
+        data: voData.map(d => d.vo2max),
+        borderColor: '#60a5fa',
+        backgroundColor: 'rgba(96,165,250,.1)',
+        borderWidth: 2.5,
+        pointRadius: 4,
+        tension: .2,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { grid: { color: '#222' }, min: 45, title: { display: true, text: 'ml/kg/min' } },
+        x: { grid: { display: false }, ticks: { maxTicksLimit: 10 } }
+      }
+    }
+  });
+}
+
+// ── Steps 30 days (loaded from API) ──
+fetch('/api/steps30').then(r => r.json()).then(data => {
+  const goal = data[0]?.goal || 7760;
+  new Chart(document.getElementById('steps30Chart'), {
+    type: 'bar',
+    data: {
+      labels: data.map(d => d.date.slice(5)),
+      datasets: [{
+        label: 'Pasos',
+        data: data.map(d => d.steps),
+        backgroundColor: data.map(d => d.met ? 'rgba(252,76,2,.75)' : 'rgba(80,80,80,.5)'),
+        borderRadius: 3,
+      }, {
+        label: 'Objetivo',
+        data: Array(data.length).fill(goal),
+        type: 'line',
+        borderColor: '#444',
+        borderDash: [4,3],
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { grid: { color: '#222' }, ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v } },
+        x: { grid: { display: false }, ticks: { maxTicksLimit: 15 } }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

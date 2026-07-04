@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% block title %}Actividades · Entrenamientos{% endblock %}
+
+{% block content %}
+<h4 class="fw-bold mb-1">Actividades</h4>
+<p class="text-muted mb-4">Últimos 90 días</p>
+
+<ul class="nav nav-tabs mb-4" id="actTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="tab-carrera-btn" data-bs-toggle="tab" data-bs-target="#tab-carrera" type="button" role="tab">
+      <i class="fa fa-person-running me-1"></i>Carrera
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="tab-pesas-btn" data-bs-toggle="tab" data-bs-target="#tab-pesas" type="button" role="tab">
+      <i class="fa fa-dumbbell me-1"></i>Pesas
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="tab-bici-btn" data-bs-toggle="tab" data-bs-target="#tab-bici" type="button" role="tab">
+      <i class="fa fa-person-biking me-1"></i>Bici
+    </button>
+  </li>
+</ul>
+
+<div class="tab-content" id="actTabsContent">
+<div class="tab-pane fade show active" id="tab-carrera" role="tabpanel">
+
+<!-- summary cards -->
+{% set total_km = activities | sum(attribute='distance_km') %}
+{% set total_runs = activities | length %}
+{% set total_elev = activities | sum(attribute='elevation') %}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 metric-card text-center">
+      <div class="metric-lbl">Kilómetros</div>
+      <div class="metric-val text-strava">{{ "%.1f"|format(total_km) }}</div>
+      <small class="text-muted">últimos 90 días</small>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 metric-card text-center">
+      <div class="metric-lbl">Actividades</div>
+      <div class="metric-val">{{ total_runs }}</div>
+      <small class="text-muted">carreras</small>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 metric-card text-center">
+      <div class="metric-lbl">Desnivel +</div>
+      <div class="metric-val text-info">{{ total_elev | int }}</div>
+      <small class="text-muted">metros</small>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 metric-card text-center">
+      <div class="metric-lbl">Media por semana</div>
+      {% set wks = (weekly | length) or 1 %}
+      <div class="metric-val text-warning">{{ "%.1f"|format(total_km / wks) }}</div>
+      <small class="text-muted">km/semana</small>
+    </div>
+  </div>
+</div>
+
+{% set dist_labels = {'5k': '5K', '10k': '10K', 'half': 'Media Maratón', 'marathon': 'Maratón'} %}
+<div class="card p-3 mb-4">
+  <div class="fw-semibold mb-3"><i class="fa fa-trophy text-warning me-2"></i>PR y PR estimado</div>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle mb-0" style="font-size:.85rem">
+      <thead class="text-muted">
+        <tr>
+          <th></th>
+          {% for key, label in dist_labels.items() %}
+          <th class="num-col">{{ label }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="fw-semibold">PR real</td>
+          {% for key, label in dist_labels.items() %}
+          {% set pr = prs.get(key) %}
+          <td class="num-col">
+            {% if pr and pr.time_fmt %}
+            <a href="{{ url_for('activity_detail', activity_id=pr.activity_id) }}" class="fw-bold text-strava text-decoration-none">
+              {{ pr.time_fmt }}
+            </a>
+            <div class="text-muted" style="font-size:.72rem">{{ pr.date }}</div>
+            {% else %}
+            <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <td class="fw-semibold">Estimado Garmin</td>
+          {% for key, label in dist_labels.items() %}
+          {% set est = predicted.fmt.get(key) %}
+          <td class="num-col">
+            {% if est %}<span class="text-info fw-bold">{{ est }}</span>{% else %}<span class="text-muted">—</span>{% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- weekly volume chart -->
+<div class="card p-3 mb-4">
+  <div class="fw-semibold mb-2">Volumen semanal — últimas 12 semanas</div>
+  <div class="chart-box">
+    <canvas id="weeklyChart"></canvas>
+  </div>
+</div>
+
+<!-- activity table -->
+<div class="card p-3">
+  <div class="fw-semibold mb-3">Historial</div>
+  {% if activities %}
+  <div class="table-responsive">
+    <table class="table table-hover table-sm align-middle" style="font-size:.83rem">
+      <thead class="text-muted">
+        <tr>
+          <th>Fecha</th><th>Nombre</th><th>Dist</th><th>Tiempo</th>
+          <th>Ritmo</th><th>FC</th><th>FC max</th><th>Cadencia</th>
+          <th>Desnivel</th><th>VO2max</th><th>Efecto aeróbico</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in activities %}
+        <tr>
+          <td class="text-muted">{{ a.date }}</td>
+          <td class="fw-semibold">
+            <a href="{{ url_for('activity_detail', activity_id=a.id) }}" class="text-decoration-none text-reset">
+              {{ a.name | truncate(24) }}
+            </a>
+            {% if a.pr %}<span class="badge bg-warning text-dark ms-1" style="font-size:.6rem">PR</span>{% endif %}
+          </td>
+          <td class="fw-bold text-strava">{{ a.distance_km }}</td>
+          <td>{{ a.duration }}</td>
+          <td><code style="font-size:.8rem;color:#ddd">{{ a.pace }}</code></td>
+          <td>
+            {% if a.avg_hr %}
+            <span class="text-danger">{{ a.avg_hr }}</span>
+            {% endif %}
+          </td>
+          <td>{% if a.max_hr %}<span class="text-danger">{{ a.max_hr }}</span>{% endif %}</td>
+          <td>{% if a.cadence %}{{ a.cadence }} spm{% endif %}</td>
+          <td>{% if a.elevation %}+{{ a.elevation }}m{% endif %}</td>
+          <td>{% if a.vo2max %}<span class="text-info fw-bold">{{ a.vo2max }}</span>{% endif %}</td>
+          <td>
+            {% if a.aerobic_te %}
+            <span class="te-badge te-{{ a.aerobic_te | int }}">
+              {{ a.training_label or 'TE ' ~ a.aerobic_te }}
+            </span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-muted">No se encontraron actividades en los últimos 90 días.</p>
+  {% endif %}
+</div>
+
+</div>
+<!-- /tab-carrera -->
+
+<div class="tab-pane fade" id="tab-pesas" role="tabpanel">
+  <div class="card p-3">
+    <div class="fw-semibold mb-3">Historial · Pesas</div>
+    {% if acts_strength %}
+    <div class="table-responsive">
+      <table class="table table-hover table-sm align-middle" style="font-size:.83rem">
+        <thead class="text-muted">
+          <tr><th>Fecha</th><th>Tipo</th><th>Duración</th><th>Pulsaciones</th></tr>
+        </thead>
+        <tbody>
+          {% for a in acts_strength %}
+          <tr>
+            <td class="text-muted">
+              <a href="{{ url_for('activity_detail', activity_id=a.id) }}" class="text-decoration-none text-reset">
+                {{ a.date }}
+              </a>
+            </td>
+            <td>
+              <form method="POST" action="{{ url_for('update_pesas_label', activity_id=a.id) }}">
+                <select name="label" class="form-select form-select-sm" style="width:auto" onchange="this.form.submit()">
+                  <option value="" {% if not a.label %}selected{% endif %}>Sin clasificar</option>
+                  {% for opt in pesas_label_options %}
+                  <option value="{{ opt }}" {% if a.label == opt %}selected{% endif %}>{{ opt }}</option>
+                  {% endfor %}
+                </select>
+              </form>
+            </td>
+            <td>{{ a.duration }}</td>
+            <td>{% if a.avg_hr %}<span class="text-danger">{{ a.avg_hr }}</span>{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted mb-0">No se encontraron sesiones de pesas en los últimos 90 días.</p>
+    {% endif %}
+  </div>
+</div>
+<!-- /tab-pesas -->
+
+<div class="tab-pane fade" id="tab-bici" role="tabpanel">
+  <div class="card p-3">
+    <div class="fw-semibold mb-3">Historial · Bici</div>
+    {% if acts_bike %}
+    <div class="table-responsive">
+      <table class="table table-hover table-sm align-middle" style="font-size:.83rem">
+        <thead class="text-muted">
+          <tr><th>Fecha</th><th>Duración</th><th>Pulsaciones</th></tr>
+        </thead>
+        <tbody>
+          {% for a in acts_bike %}
+          <tr>
+            <td class="text-muted">
+              <a href="{{ url_for('activity_detail', activity_id=a.id) }}" class="text-decoration-none text-reset">
+                {{ a.date }}
+              </a>
+            </td>
+            <td>{{ a.duration }}</td>
+            <td>{% if a.avg_hr %}<span class="text-danger">{{ a.avg_hr }}</span>{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted mb-0">No se encontraron actividades de bici en los últimos 90 días.</p>
+    {% endif %}
+  </div>
+</div>
+<!-- /tab-bici -->
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const wData  = {{ weekly | tojson }};
+const wLabels = wData.map(w => w.week.slice(5));
+const wKm     = wData.map(w => w.km);
+const wSess   = wData.map(w => w.sessions);
+
+new Chart(document.getElementById('weeklyChart'), {
+  type: 'bar',
+  data: {
+    labels: wLabels,
+    datasets: [{
+      label: 'km',
+      data: wKm,
+      backgroundColor: 'rgba(252,76,2,.75)',
+      borderRadius: 5,
+      yAxisID: 'y',
+    }, {
+      label: 'sesiones',
+      data: wSess,
+      type: 'line',
+      borderColor: '#60a5fa',
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      pointRadius: 3,
+      yAxisID: 'y2',
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { boxWidth: 12 } } },
+    scales: {
+      y:  { grid: { color: '#222' }, title: { display: true, text: 'km' } },
+      y2: { position: 'right', grid: { display: false }, ticks: { stepSize: 1 }, title: { display: true, text: 'sesiones' } },
+      x:  { grid: { display: false } }
+    }
+  }
+});
+</script>
+{% endblock %}

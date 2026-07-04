@@ -1,0 +1,1192 @@
+[
+  {
+    "id": 1,
+    "date": "2026-06-29",
+    "desc": "5x1000m (4:15–4:25/km)",
+    "type": "run",
+    "target_km": 5.0
+  },
+  {
+    "id": 2,
+    "date": "2026-06-30",
+    "desc": "Pecho",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 3,
+    "date": "2026-07-03",
+    "desc": "Espalda",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 4,
+    "date": "2026-06-30",
+    "desc": "Bici",
+    "type": "bike",
+    "target_km": null
+  },
+  {
+    "id": 5,
+    "date": "2026-07-01",
+    "desc": "6 km (5:50/km)",
+    "type": "run",
+    "target_km": 6.0
+  },
+  {
+    "id": 6,
+    "date": "2026-07-01",
+    "desc": "Pierna",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 7,
+    "date": "2026-07-02",
+    "desc": "Abs/Core",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 8,
+    "date": "2026-07-03",
+    "desc": "7 km (4:45–5:00/km)",
+    "type": "run",
+    "target_km": 7.0
+  },
+  {
+    "id": 9,
+    "date": "2026-07-05",
+    "desc": "12 km (5:20–5:35/km)",
+    "type": "run",
+    "target_km": 12.0
+  },
+  {
+    "id": 10,
+    "date": "2026-07-04",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 11,
+    "date": "2026-07-06",
+    "desc": "6x800m (4:00–4:10/km)",
+    "type": "run",
+    "target_km": 4.8
+  },
+  {
+    "id": 12,
+    "date": "2026-07-06",
+    "desc": "Pecho",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 13,
+    "date": "2026-07-07",
+    "desc": "Espalda",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 14,
+    "date": "2026-07-07",
+    "desc": "Bici",
+    "type": "bike",
+    "target_km": null
+  },
+  {
+    "id": 15,
+    "date": "2026-07-08",
+    "desc": "7 km (5:50/km)",
+    "type": "run",
+    "target_km": 7.0
+  },
+  {
+    "id": 16,
+    "date": "2026-07-08",
+    "desc": "Pierna",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 17,
+    "date": "2026-07-09",
+    "desc": "Abs/Core",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 18,
+    "date": "2026-07-10",
+    "desc": "8 km (4:45–5:00/km)",
+    "type": "run",
+    "target_km": 8.0
+  },
+  {
+    "id": 19,
+    "date": "2026-07-11",
+    "desc": "13 km (5:20–5:35/km)",
+    "type": "run",
+    "target_km": 13.0
+  },
+  {
+    "id": 20,
+    "date": "2026-07-12",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 21,
+    "date": "2026-07-13",
+    "desc": "8x400m (3:55–4:05/km)",
+    "type": "run",
+    "target_km": 3.2
+  },
+  {
+    "id": 22,
+    "date": "2026-07-13",
+    "desc": "Pecho",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 23,
+    "date": "2026-07-14",
+    "desc": "Espalda",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 24,
+    "date": "2026-07-14",
+    "desc": "Bici",
+    "type": "bike",
+    "target_km": null
+  },
+  {
+    "id": 25,
+    "date": "2026-07-15",
+    "desc": "7 km (5:50/km)",
+    "type": "run",
+    "target_km": 7.0
+  },
+  {
+    "id": 26,
+    "date": "2026-07-15",
+    "desc": "Pierna",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 27,
+    "date": "2026-07-16",
+    "desc": "Abs/Core",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 28,
+    "date": "2026-07-17",
+    "desc": "8 km (4:45–5:00/km)",
+    "type": "run",
+    "target_km": 8.0
+  },
+  {
+    "id": 29,
+    "date": "2026-07-18",
+    "desc": "14 km (5:20–5:35/km)",
+    "type": "run",
+    "target_km": 14.0
+  },
+  {
+    "id": 30,
+    "date": "2026-07-19",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 31,
+    "date": "2026-07-20",
+    "desc": "4x1000m (4:15–4:25/km)",
+    "type": "run",
+    "target_km": 4.0
+  },
+  {
+    "id": 32,
+    "date": "2026-07-20",
+    "desc": "Pecho",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 33,
+    "date": "2026-07-21",
+    "desc": "Espalda",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 34,
+    "date": "2026-07-21",
+    "desc": "Bici",
+    "type": "bike",
+    "target_km": null
+  },
+  {
+    "id": 35,
+    "date": "2026-07-22",
+    "desc": "5 km (5:50/km)",
+    "type": "run",
+    "target_km": 5.0
+  },
+  {
+    "id": 36,
+    "date": "2026-07-22",
+    "desc": "Pierna",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 37,
+    "date": "2026-07-23",
+    "desc": "Abs/Core",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 38,
+    "date": "2026-07-24",
+    "desc": "6 km (5:00–5:10/km)",
+    "type": "run",
+    "target_km": 6.0
+  },
+  {
+    "id": 39,
+    "date": "2026-07-25",
+    "desc": "10 km (5:30–5:45/km)",
+    "type": "run",
+    "target_km": 10.0
+  },
+  {
+    "id": 40,
+    "date": "2026-07-26",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 41,
+    "date": "2026-07-27",
+    "desc": "6x1000m (4:05–4:15/km)",
+    "type": "run",
+    "target_km": 6.0
+  },
+  {
+    "id": 42,
+    "date": "2026-07-27",
+    "desc": "Pecho",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 43,
+    "date": "2026-07-28",
+    "desc": "Espalda",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 44,
+    "date": "2026-07-28",
+    "desc": "Bici",
+    "type": "bike",
+    "target_km": null
+  },
+  {
+    "id": 45,
+    "date": "2026-07-29",
+    "desc": "8 km (5:50/km)",
+    "type": "run",
+    "target_km": 8.0
+  },
+  {
+    "id": 46,
+    "date": "2026-07-29",
+    "desc": "Pierna",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 47,
+    "date": "2026-07-30",
+    "desc": "Abs/Core",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 48,
+    "date": "2026-07-31",
+    "desc": "9 km (4:45–5:00/km)",
+    "type": "run",
+    "target_km": 9.0
+  },
+  {
+    "id": 49,
+    "date": "2026-08-01",
+    "desc": "15 km (5:20–5:35/km)",
+    "type": "run",
+    "target_km": 15.0
+  },
+  {
+    "id": 50,
+    "date": "2026-08-02",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 51,
+    "date": "2026-08-03",
+    "desc": "Fartlek 12x1' (3:55–4:05/km)",
+    "type": "run",
+    "target_km": null
+  },
+  {
+    "id": 52,
+    "date": "2026-08-03",
+    "desc": "Pecho",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 53,
+    "date": "2026-08-04",
+    "desc": "Espalda",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 54,
+    "date": "2026-08-04",
+    "desc": "Bici",
+    "type": "bike",
+    "target_km": null
+  },
+  {
+    "id": 55,
+    "date": "2026-08-05",
+    "desc": "8 km (5:50/km)",
+    "type": "run",
+    "target_km": 8.0
+  },
+  {
+    "id": 56,
+    "date": "2026-08-05",
+    "desc": "Pierna",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 57,
+    "date": "2026-08-06",
+    "desc": "Abs/Core",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 58,
+    "date": "2026-08-07",
+    "desc": "10 km (4:45–5:00/km)",
+    "type": "run",
+    "target_km": 10.0
+  },
+  {
+    "id": 59,
+    "date": "2026-08-08",
+    "desc": "16 km (5:20–5:35/km)",
+    "type": "run",
+    "target_km": 16.0
+  },
+  {
+    "id": 60,
+    "date": "2026-08-09",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 61,
+    "date": "2026-08-10",
+    "desc": "4x1500m (4:10–4:20/km)",
+    "type": "run",
+    "target_km": 6.0
+  },
+  {
+    "id": 62,
+    "date": "2026-08-10",
+    "desc": "Pecho",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 63,
+    "date": "2026-08-11",
+    "desc": "Espalda",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 64,
+    "date": "2026-08-11",
+    "desc": "Bici",
+    "type": "bike",
+    "target_km": null
+  },
+  {
+    "id": 65,
+    "date": "2026-08-12",
+    "desc": "8 km (5:50/km)",
+    "type": "run",
+    "target_km": 8.0
+  },
+  {
+    "id": 66,
+    "date": "2026-08-12",
+    "desc": "Pierna",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 67,
+    "date": "2026-08-13",
+    "desc": "Abs/Core",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 68,
+    "date": "2026-08-14",
+    "desc": "11 km (4:45–5:00/km)",
+    "type": "run",
+    "target_km": 11.0
+  },
+  {
+    "id": 69,
+    "date": "2026-08-15",
+    "desc": "17 km (5:20–5:35/km)",
+    "type": "run",
+    "target_km": 17.0
+  },
+  {
+    "id": 70,
+    "date": "2026-08-16",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 71,
+    "date": "2026-08-17",
+    "desc": "5x1000m (4:15–4:25/km)",
+    "type": "run",
+    "target_km": 5.0
+  },
+  {
+    "id": 72,
+    "date": "2026-08-17",
+    "desc": "Pecho",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 73,
+    "date": "2026-08-18",
+    "desc": "Espalda",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 74,
+    "date": "2026-08-18",
+    "desc": "Bici",
+    "type": "bike",
+    "target_km": null
+  },
+  {
+    "id": 75,
+    "date": "2026-08-19",
+    "desc": "6 km (5:50/km)",
+    "type": "run",
+    "target_km": 6.0
+  },
+  {
+    "id": 76,
+    "date": "2026-08-19",
+    "desc": "Pierna",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 77,
+    "date": "2026-08-20",
+    "desc": "Abs/Core",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 78,
+    "date": "2026-08-21",
+    "desc": "7 km (5:00–5:10/km)",
+    "type": "run",
+    "target_km": 7.0
+  },
+  {
+    "id": 79,
+    "date": "2026-08-22",
+    "desc": "12 km (5:30–5:45/km)",
+    "type": "run",
+    "target_km": 12.0
+  },
+  {
+    "id": 80,
+    "date": "2026-08-23",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 81,
+    "date": "2026-08-24",
+    "desc": "3x2000m (4:15–4:25/km)",
+    "type": "run",
+    "target_km": 6.0
+  },
+  {
+    "id": 82,
+    "date": "2026-08-24",
+    "desc": "Pecho",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 83,
+    "date": "2026-08-25",
+    "desc": "Espalda",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 84,
+    "date": "2026-08-25",
+    "desc": "Bici",
+    "type": "bike",
+    "target_km": null
+  },
+  {
+    "id": 85,
+    "date": "2026-08-26",
+    "desc": "8 km (5:50/km)",
+    "type": "run",
+    "target_km": 8.0
+  },
+  {
+    "id": 86,
+    "date": "2026-08-26",
+    "desc": "Pierna",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 87,
+    "date": "2026-08-27",
+    "desc": "Abs/Core",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 88,
+    "date": "2026-08-28",
+    "desc": "10 km (4:45–5:00/km)",
+    "type": "run",
+    "target_km": 10.0
+  },
+  {
+    "id": 89,
+    "date": "2026-08-29",
+    "desc": "18 km (5:20–5:35/km)",
+    "type": "run",
+    "target_km": 18.0
+  },
+  {
+    "id": 90,
+    "date": "2026-08-30",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 91,
+    "date": "2026-08-31",
+    "desc": "Fartlek 8x2' (4:05–4:15/km)",
+    "type": "run",
+    "target_km": null
+  },
+  {
+    "id": 92,
+    "date": "2026-08-31",
+    "desc": "Pecho",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 93,
+    "date": "2026-09-01",
+    "desc": "Espalda",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 94,
+    "date": "2026-09-01",
+    "desc": "Bici",
+    "type": "bike",
+    "target_km": null
+  },
+  {
+    "id": 95,
+    "date": "2026-09-02",
+    "desc": "8 km (5:50/km)",
+    "type": "run",
+    "target_km": 8.0
+  },
+  {
+    "id": 96,
+    "date": "2026-09-02",
+    "desc": "Pierna",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 97,
+    "date": "2026-09-03",
+    "desc": "Abs/Core",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 98,
+    "date": "2026-09-04",
+    "desc": "12 km progresivo (8 km a 5:30",
+    "type": "run",
+    "target_km": 12.0
+  },
+  {
+    "id": 99,
+    "date": "2026-09-04",
+    "desc": "4 km a 4:54/km)",
+    "type": "run",
+    "target_km": 4.0
+  },
+  {
+    "id": 100,
+    "date": "2026-09-05",
+    "desc": "19 km (5:20–5:35/km)",
+    "type": "run",
+    "target_km": 19.0
+  },
+  {
+    "id": 101,
+    "date": "2026-09-06",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 102,
+    "date": "2026-09-07",
+    "desc": "4x2000m (4:15–4:25/km)",
+    "type": "run",
+    "target_km": 8.0
+  },
+  {
+    "id": 103,
+    "date": "2026-09-07",
+    "desc": "Pecho",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 104,
+    "date": "2026-09-08",
+    "desc": "Espalda",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 105,
+    "date": "2026-09-08",
+    "desc": "Bici",
+    "type": "bike",
+    "target_km": null
+  },
+  {
+    "id": 106,
+    "date": "2026-09-09",
+    "desc": "8 km (5:50/km)",
+    "type": "run",
+    "target_km": 8.0
+  },
+  {
+    "id": 107,
+    "date": "2026-09-09",
+    "desc": "Pierna",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 108,
+    "date": "2026-09-10",
+    "desc": "Abs/Core",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 109,
+    "date": "2026-09-11",
+    "desc": "12 km progresivo (8 km a 5:30",
+    "type": "run",
+    "target_km": 12.0
+  },
+  {
+    "id": 110,
+    "date": "2026-09-11",
+    "desc": "4 km a 4:54/km)",
+    "type": "run",
+    "target_km": 4.0
+  },
+  {
+    "id": 111,
+    "date": "2026-09-12",
+    "desc": "20 km (Máximo — últimos 5 km a 5:00/km si te encuentras bien)",
+    "type": "run",
+    "target_km": 20.0
+  },
+  {
+    "id": 112,
+    "date": "2026-09-13",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 113,
+    "date": "2026-09-14",
+    "desc": "6x1000m (4:15–4:25/km)",
+    "type": "run",
+    "target_km": 6.0
+  },
+  {
+    "id": 114,
+    "date": "2026-09-14",
+    "desc": "Pecho",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 115,
+    "date": "2026-09-15",
+    "desc": "Espalda",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 116,
+    "date": "2026-09-15",
+    "desc": "Bici",
+    "type": "bike",
+    "target_km": null
+  },
+  {
+    "id": 117,
+    "date": "2026-09-16",
+    "desc": "6 km (5:50/km)",
+    "type": "run",
+    "target_km": 6.0
+  },
+  {
+    "id": 118,
+    "date": "2026-09-16",
+    "desc": "Pierna",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 119,
+    "date": "2026-09-17",
+    "desc": "Abs/Core",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 120,
+    "date": "2026-09-18",
+    "desc": "8 km (5:00–5:10/km)",
+    "type": "run",
+    "target_km": 8.0
+  },
+  {
+    "id": 121,
+    "date": "2026-09-19",
+    "desc": "14 km (5:30–5:45/km)",
+    "type": "run",
+    "target_km": 14.0
+  },
+  {
+    "id": 122,
+    "date": "2026-09-20",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 123,
+    "date": "2026-09-21",
+    "desc": "3x3000m (4:40–4:50/km)",
+    "type": "run",
+    "target_km": 9.0
+  },
+  {
+    "id": 124,
+    "date": "2026-09-21",
+    "desc": "Pecho",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 125,
+    "date": "2026-09-22",
+    "desc": "Espalda",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 126,
+    "date": "2026-09-22",
+    "desc": "Bici",
+    "type": "bike",
+    "target_km": null
+  },
+  {
+    "id": 127,
+    "date": "2026-09-23",
+    "desc": "7 km (5:50/km)",
+    "type": "run",
+    "target_km": 7.0
+  },
+  {
+    "id": 128,
+    "date": "2026-09-23",
+    "desc": "Pierna",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 129,
+    "date": "2026-09-24",
+    "desc": "Abs/Core",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 130,
+    "date": "2026-09-25",
+    "desc": "10 km (4:45–5:00/km)",
+    "type": "run",
+    "target_km": 10.0
+  },
+  {
+    "id": 131,
+    "date": "2026-09-26",
+    "desc": "18 km (5:20–5:35/km)",
+    "type": "run",
+    "target_km": 18.0
+  },
+  {
+    "id": 132,
+    "date": "2026-09-27",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 133,
+    "date": "2026-09-28",
+    "desc": "5x1000m (4:05–4:15/km)",
+    "type": "run",
+    "target_km": 5.0
+  },
+  {
+    "id": 134,
+    "date": "2026-09-28",
+    "desc": "Pecho",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 135,
+    "date": "2026-09-29",
+    "desc": "Espalda",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 136,
+    "date": "2026-09-29",
+    "desc": "Bici",
+    "type": "bike",
+    "target_km": null
+  },
+  {
+    "id": 137,
+    "date": "2026-09-30",
+    "desc": "6 km (5:50/km)",
+    "type": "run",
+    "target_km": 6.0
+  },
+  {
+    "id": 138,
+    "date": "2026-09-30",
+    "desc": "Pierna",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 139,
+    "date": "2026-10-01",
+    "desc": "Abs/Core",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 140,
+    "date": "2026-10-02",
+    "desc": "8 km (4:45–5:00/km)",
+    "type": "run",
+    "target_km": 8.0
+  },
+  {
+    "id": 141,
+    "date": "2026-10-03",
+    "desc": "15 km (5:20–5:35/km)",
+    "type": "run",
+    "target_km": 15.0
+  },
+  {
+    "id": 142,
+    "date": "2026-10-04",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 143,
+    "date": "2026-10-05",
+    "desc": "4x1000m suaves (4:30–4:40/km)",
+    "type": "run",
+    "target_km": 4.0
+  },
+  {
+    "id": 144,
+    "date": "2026-10-05",
+    "desc": "Pecho",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 145,
+    "date": "2026-10-06",
+    "desc": "Espalda",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 146,
+    "date": "2026-10-06",
+    "desc": "Bici",
+    "type": "bike",
+    "target_km": null
+  },
+  {
+    "id": 147,
+    "date": "2026-10-07",
+    "desc": "5 km (5:50/km)",
+    "type": "run",
+    "target_km": 5.0
+  },
+  {
+    "id": 148,
+    "date": "2026-10-07",
+    "desc": "Pierna",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 149,
+    "date": "2026-10-08",
+    "desc": "Abs/Core",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 150,
+    "date": "2026-10-09",
+    "desc": "6 km (5:00–5:10/km)",
+    "type": "run",
+    "target_km": 6.0
+  },
+  {
+    "id": 151,
+    "date": "2026-10-10",
+    "desc": "12 km (5:30–5:40/km)",
+    "type": "run",
+    "target_km": 12.0
+  },
+  {
+    "id": 152,
+    "date": "2026-10-11",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 153,
+    "date": "2026-10-12",
+    "desc": "5 km (5:00/km)",
+    "type": "run",
+    "target_km": 5.0
+  },
+  {
+    "id": 154,
+    "date": "2026-10-12",
+    "desc": "rectas (3:45/km)",
+    "type": "run",
+    "target_km": null
+  },
+  {
+    "id": 155,
+    "date": "2026-10-12",
+    "desc": "Pecho",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 156,
+    "date": "2026-10-13",
+    "desc": "Espalda",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 157,
+    "date": "2026-10-13",
+    "desc": "Bici",
+    "type": "bike",
+    "target_km": null
+  },
+  {
+    "id": 158,
+    "date": "2026-10-14",
+    "desc": "5 km suave",
+    "type": "run",
+    "target_km": 5.0
+  },
+  {
+    "id": 159,
+    "date": "2026-10-14",
+    "desc": "Pierna",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 160,
+    "date": "2026-10-15",
+    "desc": "Abs/Core",
+    "type": "gym",
+    "target_km": null
+  },
+  {
+    "id": 161,
+    "date": "2026-10-16",
+    "desc": "Descanso total",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 162,
+    "date": "2026-10-17",
+    "desc": "10 km (5:30–5:40/km)",
+    "type": "run",
+    "target_km": 10.0
+  },
+  {
+    "id": 163,
+    "date": "2026-10-18",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 164,
+    "date": "2026-10-19",
+    "desc": "5 km muy suaves (5:30–6:00/km)",
+    "type": "run",
+    "target_km": 5.0
+  },
+  {
+    "id": 165,
+    "date": "2026-10-20",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 166,
+    "date": "2026-10-21",
+    "desc": "4 km Activación (5:10/km)",
+    "type": "run",
+    "target_km": 4.0
+  },
+  {
+    "id": 167,
+    "date": "2026-10-22",
+    "desc": "Descanso",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 168,
+    "date": "2026-10-23",
+    "desc": "Descanso total",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 169,
+    "date": "2026-10-24",
+    "desc": "Descanso total",
+    "type": "rest",
+    "target_km": null
+  },
+  {
+    "id": 170,
+    "date": "2026-10-19",
+    "desc": "**Domingo 25 Oct ·  21K VALENCIA — Salida a 4:54/km**",
+    "type": "run",
+    "target_km": null
+  }
+]

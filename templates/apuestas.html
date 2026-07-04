@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+{% block title %}Apuestas — CASH{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0"><i class="bi bi-dice-5 me-2"></i>Registro de Apuestas</h5>
+  <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal">
+    <i class="bi bi-plus-lg me-1"></i>Añadir
+  </button>
+</div>
+
+<!-- Filtros -->
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-auto">
+        <select name="mes" class="form-select form-select-sm">
+          <option value="">Todos los meses</option>
+          {% for m in available_months %}
+          <option value="{{ m }}" {% if m == mes_filter %}selected{% endif %}>{{ m }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <select name="casa" class="form-select form-select-sm">
+          <option value="">Todas las casas</option>
+          {% for bm in bookmakers %}
+          <option value="{{ bm }}" {% if bm == casa_filter %}selected{% endif %}>{{ bm }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <select name="resultado" class="form-select form-select-sm">
+          <option value="">Todos</option>
+          {% for r in resultados %}
+          <option value="{{ r }}" {% if r == resultado_filter %}selected{% endif %}>{{ r }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary btn-sm">Filtrar</button>
+        <a href="/apuestas" class="btn btn-link btn-sm">Limpiar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Tabla -->
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-dark table-striped table-hover table-sm mb-0">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Partido</th>
+            <th>Apuesta</th>
+            <th>Casa</th>
+            <th>Cuentas</th>
+            <th class="num-col">Stake</th>
+            <th class="num-col">Cuota</th>
+            <th>Resultado</th>
+            <th class="num-col">Gan. Cuenta 1</th>
+            <th class="num-col">Gan. Cuenta 2</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in apuestas %}
+          <tr>
+            <td>{{ a.fecha | fmt_date }}</td>
+            <td>{{ a.partido }}</td>
+            <td>{{ a.apuesta }}</td>
+            <td><span class="badge bg-secondary">{{ a.casa }}</span></td>
+            <td>
+              {% if a.is_shared %}
+              <span class="badge bg-dark border">{{ a.cuentas | cuentas_apuesta_label }}</span>
+              {% else %}
+              <span class="text-muted small">1</span>
+              {% endif %}
+            </td>
+            <td class="num-col">{{ "%.2f" | format(a.stake) }}</td>
+            <td class="num-col">{{ "%.2f" | format(a.cuota) }}</td>
+            <td>
+              {% if a.resultado == 'W' %}
+                <span class="badge badge-w">W</span>
+              {% elif a.resultado == 'L' %}
+                <span class="badge badge-l">L</span>
+              {% elif a.resultado == 'V' %}
+                <span class="badge badge-v">V</span>
+              {% else %}
+                <span class="badge badge-p">Pendiente</span>
+              {% endif %}
+            </td>
+            <td class="num-col {{ a.ganancia_yo | color_num }}">
+              {% if not a.pendiente %}{{ a.ganancia_yo | fmt_num }}{% else %}—{% endif %}
+            </td>
+            <td class="num-col {{ a.ganancia_asenjo | color_num }}">
+              {% if not a.pendiente %}{{ a.ganancia_asenjo | fmt_num }}{% else %}—{% endif %}
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                {% if a.pendiente %}
+                <form method="post" action="/apuestas/{{ a.row }}/resultado" class="d-inline">
+                  <input type="hidden" name="resultado" value="W">
+                  <button type="submit" class="btn btn-success py-0 px-1" title="Ganada">W</button>
+                </form>
+                <form method="post" action="/apuestas/{{ a.row }}/resultado" class="d-inline">
+                  <input type="hidden" name="resultado" value="L">
+                  <button type="submit" class="btn btn-danger py-0 px-1" title="Perdida">L</button>
+                </form>
+                <form method="post" action="/apuestas/{{ a.row }}/resultado" class="d-inline">
+                  <input type="hidden" name="resultado" value="V">
+                  <button type="submit" class="btn btn-secondary py-0 px-1" title="Void">V</button>
+                </form>
+                {% else %}
+                <form method="post" action="/apuestas/{{ a.row }}/resultado" class="d-inline">
+                  <input type="hidden" name="resultado" value="Pendiente">
+                  <button type="submit" class="btn btn-outline-warning py-0 px-1" title="Revertir">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                  </button>
+                </form>
+                {% endif %}
+                <button type="button" class="btn btn-outline-info py-0 px-1" title="Editar"
+                        data-bs-toggle="modal" data-bs-target="#editModal{{ a.row }}">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <form method="post" action="/apuestas/{{ a.row }}/delete" class="d-inline"
+                      onsubmit="return confirm('¿Eliminar esta apuesta?');">
+                  <button type="submit" class="btn btn-outline-danger py-0 px-1" title="Eliminar">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="11" class="text-center text-muted py-4">No hay apuestas con esos filtros</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card-footer text-muted small">{{ apuestas | length }} apuestas</div>
+</div>
+
+<!-- Modales Editar -->
+{% for a in apuestas %}
+<div class="modal fade" id="editModal{{ a.row }}" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Apuesta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="/apuestas/{{ a.row }}/edit">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label">Fecha</label>
+              <input type="date" name="fecha" class="form-control"
+                     value="{{ a.fecha.strftime('%Y-%m-%d') if a.fecha else '' }}">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Mes</label>
+              <input type="month" name="mes" class="form-control"
+                     value="{{ a.mes.strftime('%Y-%m') if a.mes else '' }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Partido</label>
+              <input type="text" name="partido" class="form-control" value="{{ a.partido }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Apuesta</label>
+              <input type="text" name="apuesta" class="form-control" value="{{ a.apuesta }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Casa *</label>
+              <select name="casa" class="form-select" required
+                      onchange="toggleCuentasField(this, 'cuentasWrap{{ a.row }}')" id="casaSelect{{ a.row }}">
+                {% for bm in bookmakers %}
+                <option data-shared="{{ '1' if bm in shared_bookmakers else '0' }}" {% if bm == a.casa %}selected{% endif %}>{{ bm }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12" id="cuentasWrap{{ a.row }}" style="display: {{ 'block' if a.is_shared else 'none' }}">
+              <label class="form-label">¿Con qué cuentas apuestas?</label>
+              <select name="cuentas" class="form-select">
+                {% for c in cuentas_apuesta %}
+                <option value="{{ c }}" {% if c == a.cuentas %}selected{% endif %}>{{ c | cuentas_apuesta_option_label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-4">
+              <label class="form-label">Stake (€) *</label>
+              <input type="number" name="stake" step="0.01" min="0" class="form-control" value="{{ a.stake }}" required>
+            </div>
+            <div class="col-4">
+              <label class="form-label">Cuota *</label>
+              <input type="number" name="cuota" step="0.01" min="1" class="form-control" value="{{ a.cuota }}" required>
+            </div>
+            <div class="col-4">
+              <label class="form-label">Resultado</label>
+              <select name="resultado" class="form-select">
+                {% for r in resultados %}
+                <option value="{{ r }}" {% if r == a.resultado %}selected{% endif %}>
+                  {% if r == 'W' %}W (Ganada){% elif r == 'L' %}L (Perdida){% elif r == 'V' %}V (Void){% else %}Pendiente{% endif %}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Modal Añadir -->
+<div class="modal fade" id="addModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h5 class="modal-title">Añadir Apuesta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="/apuestas/add">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label">Fecha</label>
+              <input type="date" name="fecha" class="form-control" id="fechaInput">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Mes</label>
+              <input type="month" name="mes" class="form-control" id="mesInput">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Partido</label>
+              <input type="text" name="partido" class="form-control" placeholder="Ej: Real Madrid vs Barcelona">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Apuesta</label>
+              <input type="text" name="apuesta" class="form-control" placeholder="Ej: 1X2, +0.5, Ambos marcan...">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Casa *</label>
+              <select name="casa" class="form-select" required
+                      onchange="toggleCuentasField(this, 'cuentasWrapAdd')" id="casaSelectAdd">
+                {% for bm in bookmakers %}
+                <option data-shared="{{ '1' if bm in shared_bookmakers else '0' }}">{{ bm }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12" id="cuentasWrapAdd">
+              <label class="form-label">¿Con qué cuentas apuestas?</label>
+              <select name="cuentas" class="form-select">
+                {% for c in cuentas_apuesta %}
+                <option value="{{ c }}" {% if c == 'Ambas' %}selected{% endif %}>{{ c | cuentas_apuesta_option_label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-4">
+              <label class="form-label">Stake (€) *</label>
+              <input type="number" name="stake" step="0.01" min="0" class="form-control" required>
+            </div>
+            <div class="col-4">
+              <label class="form-label">Cuota *</label>
+              <input type="number" name="cuota" step="0.01" min="1" class="form-control" required>
+            </div>
+            <div class="col-4">
+              <label class="form-label">Resultado</label>
+              <select name="resultado" class="form-select">
+                <option value="Pendiente">Pendiente</option>
+                <option value="W">W (Ganada)</option>
+                <option value="L">L (Perdida)</option>
+                <option value="V">V (Void)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+  function toggleCuentasField(casaSelect, wrapId) {
+    const opt = casaSelect.options[casaSelect.selectedIndex];
+    const shared = opt && opt.dataset.shared === '1';
+    const wrap = document.getElementById(wrapId);
+    if (wrap) wrap.style.display = shared ? '' : 'none';
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('fechaInput').value = today;
+    document.getElementById('mesInput').value = today.slice(0, 7);
+    document.getElementById('fechaInput').addEventListener('change', function() {
+      document.getElementById('mesInput').value = this.value.slice(0, 7);
+    });
+  });
+</script>
+{% endblock %}

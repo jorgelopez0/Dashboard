@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+{% block title %}Movimientos — CASH{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0"><i class="bi bi-arrow-left-right me-2"></i>Movimientos</h5>
+  <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal">
+    <i class="bi bi-plus-lg me-1"></i>Añadir
+  </button>
+</div>
+
+<!-- Filtros -->
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-auto">
+        <select name="mes" class="form-select form-select-sm">
+          <option value="">Todos los meses</option>
+          {% for m in available_months %}
+          <option value="{{ m }}" {% if m == mes_filter %}selected{% endif %}>{{ m }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <select name="tipo" class="form-select form-select-sm">
+          <option value="">Todos los tipos</option>
+          {% for t in tipos %}
+          <option value="{{ t }}" {% if t == tipo_filter %}selected{% endif %}>{{ t }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <select name="cuenta" class="form-select form-select-sm">
+          <option value="">Todas las cuentas</option>
+          {% for c in cuentas %}
+          <option value="{{ c }}" {% if c == cuenta_filter %}selected{% endif %}>{{ c | cuenta_label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <select name="estado" class="form-select form-select-sm">
+          <option value="">Todos los estados</option>
+          <option value="Pendiente" {% if estado_filter == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+          <option value="Recibido" {% if estado_filter == 'Recibido' %}selected{% endif %}>Recibido</option>
+        </select>
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary btn-sm">Filtrar</button>
+        <a href="/movimientos" class="btn btn-link btn-sm">Limpiar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Tabla -->
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-dark table-striped table-hover table-sm mb-0">
+        <thead>
+          <tr>
+            <th>Mes</th>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Cuenta</th>
+            <th>Casa / Categoría</th>
+            <th class="num-col">Cantidad</th>
+            <th>Estado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in movimientos %}
+          <tr>
+            <td>{{ m.mes_str }}</td>
+            <td>{{ m.fecha | fmt_date }}</td>
+            <td>{{ m.tipo }}</td>
+            <td>{{ m.cuenta | cuenta_label }}</td>
+            <td>{{ m.casa }}</td>
+            <td class="num-col">{{ "%.2f €" | format(m.cantidad) }}</td>
+            <td>
+              {% if m.estado == 'Pendiente' %}
+                <span class="badge badge-p">Pendiente</span>
+              {% else %}
+                <span class="badge bg-success">Recibido</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                {% if m.estado == 'Pendiente' %}
+                <form method="post" action="/movimientos/{{ m.row }}/estado" class="d-inline">
+                  <input type="hidden" name="estado" value="Recibido">
+                  <button type="submit" class="btn btn-success py-0 px-1">
+                    <i class="bi bi-check-lg"></i>
+                  </button>
+                </form>
+                {% else %}
+                <form method="post" action="/movimientos/{{ m.row }}/estado" class="d-inline">
+                  <input type="hidden" name="estado" value="Pendiente">
+                  <button type="submit" class="btn btn-outline-warning py-0 px-1">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                  </button>
+                </form>
+                {% endif %}
+                <button type="button" class="btn btn-outline-info py-0 px-1" title="Editar"
+                        data-bs-toggle="modal" data-bs-target="#editModal{{ m.row }}">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <form method="post" action="/movimientos/{{ m.row }}/delete" class="d-inline"
+                      onsubmit="return confirm('¿Eliminar este movimiento?');">
+                  <button type="submit" class="btn btn-outline-danger py-0 px-1" title="Eliminar">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="8" class="text-center text-muted py-4">No hay movimientos con esos filtros</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card-footer text-muted small">{{ movimientos | length }} movimientos</div>
+</div>
+
+<!-- Modales Editar -->
+{% for m in movimientos %}
+<div class="modal fade" id="editModal{{ m.row }}" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Movimiento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="/movimientos/{{ m.row }}/edit">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label">Fecha</label>
+              <input type="date" name="fecha" class="form-control"
+                     value="{{ m.fecha.strftime('%Y-%m-%d') if m.fecha else '' }}">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Mes</label>
+              <input type="month" name="mes" class="form-control"
+                     value="{{ m.mes.strftime('%Y-%m') if m.mes else '' }}">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Tipo *</label>
+              <select name="tipo" class="form-select tipo-select" required>
+                {% for t in tipos %}
+                <option {% if t == m.tipo %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-6 gasto-field">
+              <label class="form-label">Cuenta *</label>
+              <select name="cuenta" class="form-select" required>
+                {% for c in cuentas %}
+                <option value="{{ c }}" {% if c == m.cuenta %}selected{% endif %}>{{ c | cuenta_label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12 gasto-field">
+              <label class="form-label">Casa / Categoría</label>
+              <input type="text" name="casa" class="form-control" value="{{ m.casa }}" list="casas-list-{{ m.row }}">
+              <datalist id="casas-list-{{ m.row }}">
+                {% for bm in bookmakers %}
+                <option value="{{ bm }}">
+                {% endfor %}
+              </datalist>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Cantidad (€) *</label>
+              <input type="number" name="cantidad" step="0.01" min="0" class="form-control" value="{{ m.cantidad }}" required>
+            </div>
+            <div class="col-6 gasto-field">
+              <label class="form-label">Estado *</label>
+              <select name="estado" class="form-select" required>
+                <option value="Pendiente" {% if m.estado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                <option value="Recibido" {% if m.estado == 'Recibido' %}selected{% endif %}>Recibido</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Modal Añadir -->
+<div class="modal fade" id="addModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark">
+      <div class="modal-header">
+        <h5 class="modal-title">Añadir Movimiento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="/movimientos/add">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label">Fecha</label>
+              <input type="date" name="fecha" id="add-fecha" class="form-control">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Mes</label>
+              <input type="month" name="mes" id="add-mes" class="form-control">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Tipo *</label>
+              <select name="tipo" class="form-select tipo-select" required>
+                {% for t in tipos %}
+                <option>{{ t }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-6 gasto-field">
+              <label class="form-label">Cuenta *</label>
+              <select name="cuenta" class="form-select" required>
+                {% for c in cuentas %}
+                <option value="{{ c }}">{{ c | cuenta_label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12 gasto-field">
+              <label class="form-label">Casa / Categoría</label>
+              <input type="text" name="casa" class="form-control" list="casas-list">
+              <datalist id="casas-list">
+                {% for bm in bookmakers %}
+                <option value="{{ bm }}">
+                {% endfor %}
+              </datalist>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Cantidad (€) *</label>
+              <input type="number" name="cantidad" step="0.01" min="0" class="form-control" required>
+            </div>
+            <div class="col-6 gasto-field">
+              <label class="form-label">Estado *</label>
+              <select name="estado" class="form-select" required>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Recibido">Recibido</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+  // Pre-fill today's date en el modal de Añadir
+  document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    const month = today.slice(0, 7);
+    document.getElementById('add-fecha').value = today;
+    document.getElementById('add-mes').value = month;
+  });
+
+  // Oculta Cuenta / Casa / Estado para los tipos "simples" (Gasto, Papis, Clases,
+  // Tribbu, Entrenador): son irrelevantes, esos tipos solo suman o restan de Revolut.
+  const TIPOS_SIMPLES = ['Gasto', 'Papis', 'Clases', 'Tribbu', 'Entrenador'];
+  document.querySelectorAll('.tipo-select').forEach(function(tipoSel) {
+    const form = tipoSel.closest('form');
+    const fields = form.querySelectorAll('.gasto-field');
+    function update() {
+      const hide = TIPOS_SIMPLES.includes(tipoSel.value);
+      fields.forEach(function(el) { el.style.display = hide ? 'none' : ''; });
+    }
+    tipoSel.addEventListener('change', update);
+    update();
+  });
+</script>
+{% endblock %}

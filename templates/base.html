@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Dashboard{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    :root {
+      --strava: #FC4C02;
+      --strava-dark: #c93a00;
+      --sidebar-w: 230px;
+      --bg: #0d0d0d;
+      --card-bg: #1a1a1a;
+      --card-border: #2a2a2a;
+    }
+    body { background: var(--bg); font-family: 'Segoe UI', sans-serif; font-size: .9rem; }
+
+    /* ── sidebar ── */
+    #sidebar {
+      width: var(--sidebar-w); min-height: 100vh; background: #111;
+      border-right: 1px solid var(--card-border);
+      position: fixed; top: 0; left: 0; z-index: 100;
+      display: flex; flex-direction: column; overflow-y: auto;
+    }
+    #sidebar .brand {
+      padding: 1.1rem 1rem; border-bottom: 1px solid var(--card-border);
+      font-size: 1rem; font-weight: 700; letter-spacing: .5px;
+      flex-shrink: 0;
+    }
+    #sidebar .nav-link {
+      color: #aaa; padding: .55rem 1.1rem; border-radius: 8px;
+      margin: 1px 6px; font-size: .88rem; transition: all .15s;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    #sidebar .nav-link:hover  { background: rgba(255,255,255,.07); color: #fff; }
+    #sidebar .nav-link.active-running { background: rgba(252,76,2,.18); color: var(--strava); }
+    #sidebar .nav-link.active-finanzas { background: rgba(96,165,250,.15); color: #60a5fa; }
+    #sidebar .nav-link i, #sidebar .nav-link .bi { width: 20px; text-align: center; margin-right: 7px; }
+    #sidebar .nav-section {
+      font-size: .68rem; text-transform: uppercase; letter-spacing: 1.2px;
+      color: #444; padding: .9rem 1.1rem .25rem; flex-shrink: 0;
+    }
+    #sidebar .nav-section-toggle {
+      cursor: pointer; user-select: none;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    #sidebar .nav-section-toggle .toggle-chevron {
+      font-size: .6rem; transition: transform .2s; color: #444;
+    }
+    #sidebar .nav-section-toggle.collapsed .toggle-chevron { transform: rotate(-90deg); }
+    #sidebar .nav-group { overflow: hidden; }
+    #sidebar .nav-group.collapsed { display: none; }
+    #sidebar .nav-home {
+      color: #ccc; padding: .6rem 1.1rem; border-radius: 8px;
+      margin: 4px 6px; font-size: .9rem; transition: all .15s;
+      display: flex; align-items: center; gap: 8px; text-decoration: none;
+    }
+    #sidebar .nav-home:hover { background: rgba(255,255,255,.07); color: #fff; }
+    #sidebar .nav-home.active { background: rgba(255,255,255,.12); color: #fff; }
+    #sidebar hr { border-color: var(--card-border); margin: .4rem .8rem; }
+
+    /* ── main ── */
+    #main { margin-left: var(--sidebar-w); padding: 1.5rem 1.8rem; }
+
+    /* ── cards ── */
+    .card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 12px;
+    }
+    .metric-card .metric-val { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .metric-card .metric-lbl { font-size: .72rem; color: #888; text-transform: uppercase; letter-spacing: .5px; }
+
+    /* ── colors ── */
+    .text-strava { color: var(--strava) !important; }
+    .bg-strava   { background: var(--strava) !important; }
+    .card-stat   { border: 1px solid var(--card-border); }
+
+    /* ── training effect badges ── */
+    .te-badge {
+      display: inline-block; padding: .2rem .5rem; border-radius: 6px;
+      font-size: .72rem; font-weight: 600; text-transform: uppercase;
+    }
+    .te-0 { background:#2a2a2a; color:#888; }
+    .te-1 { background:#1a3a2a; color:#4ade80; }
+    .te-2 { background:#1a2a3a; color:#60a5fa; }
+    .te-3 { background:#2a2a1a; color:#facc15; }
+    .te-4 { background:#2a1a1a; color:#fb923c; }
+    .te-5 { background:#3a1a1a; color:#f87171; }
+
+    /* ── progress ring ── */
+    .progress-ring { position: relative; display: inline-flex; align-items:center; justify-content:center; }
+    .progress-ring svg { transform: rotate(-90deg); }
+    .progress-ring .ring-text { position: absolute; text-align: center; font-weight: 700; }
+
+    /* ── session card ── */
+    .session-card { border-left: 4px solid var(--strava); background: rgba(252,76,2,.07); }
+
+    /* ── week card ── */
+    .week-card.current { border-color: var(--strava) !important; }
+    .week-card.current .week-num { color: var(--strava); }
+
+    /* ── zone bar ── */
+    .zone-bar { height: 8px; border-radius: 4px; }
+
+    /* ── finanzas tables ── */
+    .table th { font-size: .78rem; text-transform: uppercase; letter-spacing: .5px; }
+    .badge-w { background: #198754; }
+    .badge-l { background: #dc3545; }
+    .badge-v { background: #6c757d; }
+    .badge-p { background: #ffc107; color: #000; }
+    .saldo-table td, .saldo-table th { font-size: .8rem; white-space: nowrap; }
+    .num-col { text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* chart containers */
+    .chart-box    { position: relative; height: 240px; }
+    .chart-box-sm { position: relative; height: 160px; }
+
+    /* ── mobile ── */
+    @media (max-width: 768px) {
+      #sidebar { transform: translateX(-100%); transition: transform .25s; }
+      #sidebar.open { transform: translateX(0); }
+      #main { margin-left: 0; padding: 1rem; }
+      #topbar { display: flex !important; }
+    }
+    #topbar {
+      display: none; position: sticky; top: 0; z-index: 99;
+      background: #111; border-bottom: 1px solid var(--card-border);
+      padding: .6rem 1rem; align-items: center; gap: .8rem;
+    }
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.6); z-index: 99;
+    }
+    .overlay.show { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- mobile topbar -->
+<div id="topbar">
+  <button class="btn btn-sm btn-outline-secondary" onclick="toggleSidebar()">
+    <i class="fa fa-bars"></i>
+  </button>
+  <span class="fw-bold">Dashboard</span>
+</div>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- sidebar -->
+<nav id="sidebar">
+  <div class="brand" style="color:#fff">
+    <span style="color:var(--strava)">⬡</span> <span>Dashboard</span>
+  </div>
+
+  <!-- Home -->
+  <div class="pt-2">
+    <a href="/" class="nav-home {% if request.path == '/' %}active{% endif %}">
+      <i class="fa fa-house" style="width:18px"></i> Inicio
+    </a>
+  </div>
+
+  <hr>
+
+  <!-- Entrenamientos -->
+  <div class="nav-section nav-section-toggle" data-group="entrenamientos" style="color:var(--strava)">
+    <span>Entrenamientos</span>
+    <i class="fa fa-chevron-down toggle-chevron"></i>
+  </div>
+  <div class="nav-group" id="nav-group-entrenamientos">
+    <a href="/running" class="nav-link {% if request.path == '/running' %}active-running{% endif %}">
+      <i class="fa fa-gauge-high"></i>Dashboard
+    </a>
+    <a href="/plan" class="nav-link {% if request.path == '/plan' %}active-running{% endif %}">
+      <i class="fa fa-calendar-days"></i>Plan Valencia
+    </a>
+    <a href="/activities" class="nav-link {% if request.path == '/activities' %}active-running{% endif %}">
+      <i class="fa fa-person-running"></i>Actividades
+    </a>
+    <a href="/stats" class="nav-link {% if request.path == '/stats' %}active-running{% endif %}">
+      <i class="fa fa-chart-line"></i>Estadísticas
+    </a>
+  </div>
+
+  <hr>
+
+  <!-- Finanzas -->
+  <div class="nav-section nav-section-toggle" data-group="finanzas" style="color:#60a5fa">
+    <span>Finanzas</span>
+    <i class="fa fa-chevron-down toggle-chevron"></i>
+  </div>
+  <div class="nav-group" id="nav-group-finanzas">
+    <a href="/finanzas" class="nav-link {% if request.path == '/finanzas' %}active-finanzas{% endif %}">
+      <i class="bi bi-speedometer2"></i>Dashboard
+    </a>
+    <a href="/movimientos" class="nav-link {% if '/movimientos' in request.path %}active-finanzas{% endif %}">
+      <i class="bi bi-arrow-left-right"></i>Movimientos
+    </a>
+    <a href="/apuestas" class="nav-link {% if '/apuestas' in request.path %}active-finanzas{% endif %}">
+      <i class="bi bi-dice-5"></i>Apuestas
+    </a>
+    <a href="/historial" class="nav-link {% if request.path == '/historial' %}active-finanzas{% endif %}">
+      <i class="bi bi-bar-chart-line"></i>Historial
+    </a>
+  </div>
+
+  <!-- footer -->
+  <div class="mt-auto p-3" style="font-size:.68rem; color:#3a3a3a; flex-shrink:0">
+    Valencia HM · 25 Oct 2026 · 1:43:00
+  </div>
+</nav>
+
+<!-- main -->
+<div id="main">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="alert alert-{{ cat }} alert-dismissible fade show py-2" role="alert">
+        {{ msg }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+Chart.defaults.color = '#aaa';
+Chart.defaults.borderColor = '#2a2a2a';
+Chart.defaults.font.family = "'Segoe UI', sans-serif";
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+
+document.querySelectorAll('.nav-section-toggle').forEach(function(toggle) {
+  const group = document.getElementById('nav-group-' + toggle.dataset.group);
+  const key = 'navCollapsed:' + toggle.dataset.group;
+  if (!group) return;
+  if (localStorage.getItem(key) === '1') {
+    group.classList.add('collapsed');
+    toggle.classList.add('collapsed');
+  }
+  toggle.addEventListener('click', function() {
+    const collapsed = group.classList.toggle('collapsed');
+    toggle.classList.toggle('collapsed', collapsed);
+    localStorage.setItem(key, collapsed ? '1' : '0');
+  });
+});
+
+const race = new Date('2026-10-25');
+const today = new Date();
+const diff = Math.ceil((race - today) / 86400000);
+if (document.getElementById('days-left')) document.getElementById('days-left').textContent = diff;
+
+const raceRoma = new Date('2027-03-14');
+const diffRoma = Math.ceil((raceRoma - today) / 86400000);
+if (document.getElementById('days-left-roma')) document.getElementById('days-left-roma').textContent = diffRoma;
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

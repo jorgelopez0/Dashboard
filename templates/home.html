@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Inicio{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h4 class="mb-0 fw-bold">Inicio</h4>
+    <small class="text-muted">{{ today.strftime('%A, %d de %B de %Y') }}</small>
+  </div>
+  <div class="text-end">
+    <div class="fw-bold text-strava"><span id="days-left">–</span> días para Valencia</div>
+    <div class="fw-bold" style="color:#60a5fa"><span id="days-left-roma">–</span> días para Roma</div>
+  </div>
+</div>
+
+<!-- ROW 1: 4 métricas rápidas -->
+<div class="row g-3 mb-4">
+  <!-- Pasos -->
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 metric-card">
+      <div class="metric-lbl"><i class="fa fa-shoe-prints text-strava me-1"></i>Pasos hoy</div>
+      <div class="metric-val text-strava mt-1">{{ summary.steps | default(0) | int }}</div>
+      <div class="progress mt-2" style="height:5px">
+        <div class="progress-bar bg-strava" style="width:{{ [summary.step_pct|default(0), 100]|min }}%"></div>
+      </div>
+      <small class="text-muted">{{ summary.step_pct | default(0) }}% de {{ summary.step_goal | default(7760) | int }}</small>
+    </div>
+  </div>
+
+  <!-- Body Battery -->
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 metric-card">
+      <div class="metric-lbl"><i class="fa fa-bolt me-1
+        {% if summary.body_battery and summary.body_battery > 60 %}text-success
+        {% elif summary.body_battery and summary.body_battery > 30 %}text-warning
+        {% else %}text-danger{% endif %}"></i>Body Battery</div>
+      <div class="metric-val mt-1
+        {% if summary.body_battery and summary.body_battery > 60 %}text-success
+        {% elif summary.body_battery and summary.body_battery > 30 %}text-warning
+        {% else %}text-danger{% endif %}">
+        {{ summary.body_battery | default('–') }}
+      </div>
+      {% if summary.resting_hr %}
+      <small class="text-muted"><i class="fa fa-heart text-danger me-1"></i>FC reposo: {{ summary.resting_hr }} bpm</small>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Ganado este mes (total) -->
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 metric-card">
+      <div class="metric-lbl"><i class="bi bi-graph-up-arrow me-1" style="color:#60a5fa"></i>Ganado este mes</div>
+      <div class="metric-val mt-1 {{ 'text-success' if ganado_mes_total >= 0 else 'text-danger' }}">
+        {{ "%.2f €" | format(ganado_mes_total) }}
+      </div>
+      <small class="text-muted">Total</small>
+    </div>
+  </div>
+
+  <!-- Ganado este mes con apuestas -->
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 metric-card">
+      <div class="metric-lbl"><i class="bi bi-dice-5 me-1" style="color:#60a5fa"></i>Ganado con apuestas</div>
+      <div class="metric-val mt-1 {{ 'text-success' if ganado_mes_apuestas >= 0 else 'text-danger' }}">
+        {{ "%.2f €" | format(ganado_mes_apuestas) }}
+      </div>
+      <small class="text-muted">Este mes</small>
+    </div>
+  </div>
+</div>
+
+<!-- ROW 2: Running (izq) + Finanzas (der) -->
+<div class="row g-3">
+
+  <!-- ── RUNNING ── -->
+  <div class="col-lg-6">
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <span class="fw-bold text-strava"><i class="fa fa-person-running me-2"></i>Entrenamientos</span>
+      <a href="/running" class="ms-auto btn btn-sm btn-outline-secondary" style="font-size:.75rem">Ver más</a>
+    </div>
+
+    <!-- sesiones de hoy -->
+    {% if today_sessions %}
+    {% for ts in today_sessions %}
+    <div class="card session-card p-3 mb-3">
+      <div>
+        <div class="fw-bold">{{ ts.desc | truncate(50) }}</div>
+        <div style="font-size:.78rem; color:#888">
+          HOY · {{ ts.day | upper }}
+          {% if ts.display_km %} · {{ ts.display_km }} km{% endif %}
+        </div>
+        {% if ts.done %}
+        <span class="text-success" style="font-size:.8rem"><i class="fa fa-check-circle me-1"></i>Completado</span>
+        {% else %}
+        <span class="badge bg-strava mt-1" style="font-size:.65rem">{{ ts.type | plan_type_label | upper }}</span>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="card p-3 mb-3 text-center">
+      <i class="fa fa-bed text-muted" style="font-size:1.5rem"></i>
+      <div class="fw-bold mt-1">Descanso</div>
+    </div>
+    {% endif %}
+
+    <!-- próximas sesiones -->
+    <div class="card p-3">
+      <div class="fw-semibold mb-2" style="font-size:.85rem; color:#888">PRÓXIMAS SESIONES</div>
+      {% for s in upcoming %}
+      <div class="d-flex align-items-start gap-2 mb-2 pb-2 {% if not loop.last %}border-bottom{% endif %}" style="border-color:#2a2a2a!important">
+        <div>
+          <div style="font-size:.75rem; color:#666">Sem {{ s.week_num }} · {{ s.day }}{% if s.date %} · {{ s.date[5:] }}{% endif %}</div>
+          <div style="font-size:.85rem" class="fw-semibold">{{ s.desc | truncate(42) }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ── FINANZAS ── -->
+  <div class="col-lg-6">
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <span class="fw-bold" style="color:#60a5fa"><i class="bi bi-cash-coin me-2"></i>Finanzas</span>
+      <a href="/finanzas" class="ms-auto btn btn-sm btn-outline-secondary" style="font-size:.75rem">Ver más</a>
+    </div>
+
+    <!-- resumen del mes -->
+    <div class="card p-3 mb-3">
+      <div class="row g-3 text-center">
+        <div class="col-6">
+          <div style="font-size:.7rem; color:#888; text-transform:uppercase; letter-spacing:.5px">Ganado este mes</div>
+          <div class="fw-bold fs-4 {{ 'text-success' if ganado_mes_total >= 0 else 'text-danger' }}">
+            {{ "%.2f €" | format(ganado_mes_total) }}
+          </div>
+        </div>
+        <div class="col-3">
+          <div style="font-size:.7rem; color:#888">Pendientes</div>
+          <div class="fw-bold fs-4 text-warning">{{ pending_movs | length }}</div>
+          <div style="font-size:.7rem; color:#888">movs.</div>
+        </div>
+        <div class="col-3">
+          <div style="font-size:.7rem; color:#888">Apuestas</div>
+          <div class="fw-bold fs-4 text-info">{{ pending_bets_count }}</div>
+          <div style="font-size:.7rem; color:#888">abiertas</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- movimientos pendientes -->
+    {% if pending_movs %}
+    <div class="card p-3">
+      <div class="fw-semibold mb-1" style="font-size:.8rem; color:#ffc107">
+        <i class="bi bi-clock me-1"></i>{{ pending_movs | length }} movimiento{{ 's' if pending_movs|length != 1 }} pendiente{{ 's' if pending_movs|length != 1 }}
+      </div>
+      {% for m in pending_movs[:5] %}
+      <div class="d-flex justify-content-between align-items-center py-1" style="font-size:.8rem; border-bottom:1px solid #222">
+        <span class="text-muted">{{ m.mes_str }} · {{ m.tipo }} · {{ m.cuenta }}</span>
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-warning">{{ "%.2f €" | format(m.cantidad) }}</span>
+          <form method="post" action="/movimientos/{{ m.row }}/estado" class="d-inline">
+            <input type="hidden" name="estado" value="Recibido">
+            <button type="submit" class="btn btn-success btn-sm py-0 px-2" style="font-size:.7rem">
+              <i class="bi bi-check-lg"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+      {% if pending_movs | length > 5 %}
+      <a href="/movimientos?estado=Pendiente" class="d-block text-center mt-1" style="font-size:.75rem; color:#60a5fa">
+        + {{ pending_movs|length - 5 }} más →
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- apuestas pendientes (hoy y atrasadas) -->
+    {% if pending_bets_open %}
+    <div class="card p-3 mt-3">
+      <div class="fw-semibold mb-1" style="font-size:.8rem; color:#0dcaf0">
+        <i class="bi bi-dice-5 me-1"></i>{{ pending_bets_open | length }} apuesta{{ 's' if pending_bets_open|length != 1 }} pendiente{{ 's' if pending_bets_open|length != 1 }} por resolver
+      </div>
+      {% for a in pending_bets_open %}
+      <div class="d-flex justify-content-between align-items-center py-1" style="font-size:.8rem; border-bottom:1px solid #222">
+        <span class="text-muted">
+          {% if a.fecha.date() != today %}<span class="text-danger">{{ a.fecha.strftime('%d/%m') }}</span> · {% endif %}
+          {{ a.casa }} · {{ a.partido }}{% if a.apuesta %} ({{ a.apuesta }}){% endif %}
+        </span>
+        <div class="d-flex align-items-center gap-2">
+          <span class="text-warning">{{ "%.2f €" | format(a.stake) }}</span>
+          <div class="btn-group btn-group-sm">
+            <form method="post" action="/apuestas/{{ a.row }}/resultado" class="d-inline">
+              <input type="hidden" name="resultado" value="W">
+              <button type="submit" class="btn btn-success py-0 px-1" style="font-size:.7rem" title="Ganada">W</button>
+            </form>
+            <form method="post" action="/apuestas/{{ a.row }}/resultado" class="d-inline">
+              <input type="hidden" name="resultado" value="L">
+              <button type="submit" class="btn btn-danger py-0 px-1" style="font-size:.7rem" title="Perdida">L</button>
+            </form>
+            <form method="post" action="/apuestas/{{ a.row }}/resultado" class="d-inline">
+              <input type="hidden" name="resultado" value="V">
+              <button type="submit" class="btn btn-secondary py-0 px-1" style="font-size:.7rem" title="Void">V</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ROW 3: Notas -->
+<div class="row g-3 mt-1">
+  <div class="col-12">
+    <div class="card p-3" style="border-left: 4px solid #f4c542;">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="fw-bold" style="color:#f4c542"><i class="bi bi-journal-check me-2"></i>Notas</span>
+      </div>
+      <form method="post" action="/notes/add" class="d-flex gap-2 mb-3">
+        <input type="text" name="text" class="form-control form-control-sm" placeholder="Añadir una tarea…" autocomplete="off">
+        <button type="submit" class="btn btn-sm" style="background:#f4c542; color:#000">
+          <i class="bi bi-plus-lg"></i>
+        </button>
+      </form>
+      {% if notes %}
+      <div class="d-flex flex-column gap-1">
+        {% for n in notes %}
+        <div class="d-flex align-items-center gap-2 px-2 py-1" style="background:rgba(255,255,255,.03); border-radius:8px;">
+          <form method="post" action="/notes/{{ n.id }}/toggle" class="d-flex align-items-center">
+            <input type="checkbox" class="form-check-input m-0" onchange="this.form.submit()" {% if n.done %}checked{% endif %}>
+          </form>
+          <span class="flex-grow-1" style="font-size:.85rem; {% if n.done %}text-decoration: line-through; color:#666;{% endif %}">
+            {{ n.text }}
+          </span>
+          <form method="post" action="/notes/{{ n.id }}/delete" class="d-flex">
+            <button type="submit" class="btn btn-sm btn-link text-muted p-0" style="line-height:1;" title="Eliminar">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-muted mb-0" style="font-size:.85rem">Sin tareas. Añade una arriba.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — CASH{% endblock %}
+{% block content %}
+
+<!-- Tarjetas resumen -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="card card-stat h-100">
+      <div class="card-body">
+        <p class="text-muted mb-1 small">Balance Total</p>
+        <h4 class="{{ saldos.balance_total | color_num }}">{{ "%.2f €" | format(saldos.balance_total) }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card card-stat h-100">
+      <div class="card-body">
+        <p class="text-muted mb-1 small">Subtotal Cuenta 1</p>
+        <h4 class="{{ saldos.yo_subtotal | color_num }}">{{ "%.2f €" | format(saldos.yo_subtotal) }}</h4>
+        <small class="text-muted">Apostado: {{ "%.2f €" | format(saldos.yo_total_apostado) }}</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card card-stat h-100">
+      <div class="card-body">
+        <p class="text-muted mb-1 small">Subtotal Cuenta 2</p>
+        <h4 class="{{ saldos.asenjo_subtotal | color_num }}">{{ "%.2f €" | format(saldos.asenjo_subtotal) }}</h4>
+        <small class="text-muted">Apostado: {{ "%.2f €" | format(saldos.asenjo_total_apostado) }}</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card card-stat h-100">
+      <div class="card-body">
+        <p class="text-muted mb-1 small">Movimientos pendientes</p>
+        <h4>{{ pending_movs | length }}</h4>
+        <small class="text-muted">Apuestas abiertas: {{ pending_bets_count }}</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Saldos por cuenta -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <strong><i class="bi bi-bank me-2"></i>Saldos por Casa</strong>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-dark table-striped table-hover saldo-table mb-0">
+        <thead>
+          <tr>
+            <th>Casa</th>
+            <th class="num-col">Saldo Cuenta 1</th>
+            <th class="num-col">Apostado</th>
+            <th class="num-col">Disponible</th>
+            <th class="num-col">Saldo Cuenta 2</th>
+            <th class="num-col">Apostado</th>
+            <th class="num-col">Disponible</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Efectivo y Revolut -->
+          <tr>
+            <td><span class="badge bg-secondary">EFECTIVO</span></td>
+            <td class="num-col">{{ "%.2f €" | format(saldos.yo.EFECTIVO) }}</td>
+            <td class="num-col">—</td>
+            <td class="num-col">{{ "%.2f €" | format(saldos.yo.EFECTIVO) }}</td>
+            <td class="num-col">—</td>
+            <td class="num-col">—</td>
+            <td class="num-col">—</td>
+          </tr>
+          <tr>
+            <td><span class="badge bg-info text-dark">REVOLUT</span></td>
+            <td class="num-col {{ saldos.yo.REVOLUT | color_num }}">{{ "%.2f €" | format(saldos.yo.REVOLUT) }}</td>
+            <td class="num-col">—</td>
+            <td class="num-col {{ saldos.yo.REVOLUT | color_num }}">{{ "%.2f €" | format(saldos.yo.REVOLUT) }}</td>
+            <td class="num-col">—</td>
+            <td class="num-col">—</td>
+            <td class="num-col">—</td>
+          </tr>
+          {% for bm in bookmakers %}
+          {% set sy = saldos.yo.get(bm, 0) %}
+          {% set sa = saldos.asenjo.get(bm, 0) %}
+          {% if sy != 0 or sa != 0 or saldos.yo_apostado.get(bm, 0) > 0 %}
+          <tr>
+            <td>{{ bm }}</td>
+            <td class="num-col {{ sy | color_num }}">{{ "%.2f €" | format(sy) }}</td>
+            <td class="num-col text-warning">
+              {% if saldos.yo_apostado.get(bm, 0) > 0 %}
+                {{ "%.2f €" | format(saldos.yo_apostado[bm]) }}
+              {% else %}—{% endif %}
+            </td>
+            <td class="num-col">{{ "%.2f €" | format(saldos.yo_disp.get(bm, 0)) }}</td>
+            <td class="num-col {{ sa | color_num }}">
+              {% if sa != 0 %}{{ "%.2f €" | format(sa) }}{% else %}—{% endif %}
+            </td>
+            <td class="num-col text-warning">
+              {% if saldos.asenjo_apostado.get(bm, 0) > 0 %}
+                {{ "%.2f €" | format(saldos.asenjo_apostado[bm]) }}
+              {% else %}—{% endif %}
+            </td>
+            <td class="num-col">
+              {% if sa != 0 %}{{ "%.2f €" | format(saldos.asenjo_disp.get(bm, 0)) }}{% else %}—{% endif %}
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+          <!-- CLASES, PAPIS, TRIBBU -->
+          {% for cat in ['CLASES', 'PAPIS', 'TRIBBU', 'ENTRENADOR'] %}
+          {% set sv = saldos.yo.get(cat, 0) %}
+          {% if sv != 0 %}
+          <tr style="background: rgba(255,255,255,.04)">
+            <td><em class="text-muted">{{ cat }}</em></td>
+            <td class="num-col text-warning">{{ "%.2f €" | format(sv) }}</td>
+            <td class="num-col text-muted">—</td>
+            <td class="num-col text-muted">—</td>
+            <td class="num-col text-muted">—</td>
+            <td class="num-col text-muted">—</td>
+            <td class="num-col text-muted">—</td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+        <tfoot class="table-dark fw-bold">
+          <tr>
+            <td>TOTAL</td>
+            <td class="num-col {{ saldos.yo_subtotal | color_num }}">{{ "%.2f €" | format(saldos.yo_subtotal) }}</td>
+            <td class="num-col text-warning">{{ "%.2f €" | format(saldos.yo_total_apostado) }}</td>
+            <td class="num-col">—</td>
+            <td class="num-col {{ saldos.asenjo_subtotal | color_num }}">{{ "%.2f €" | format(saldos.asenjo_subtotal) }}</td>
+            <td class="num-col text-warning">{{ "%.2f €" | format(saldos.asenjo_total_apostado) }}</td>
+            <td class="num-col">—</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Movimientos pendientes -->
+{% if pending_movs %}
+<div class="card mb-4">
+  <div class="card-header">
+    <strong><i class="bi bi-clock me-2"></i>Movimientos Pendientes ({{ pending_movs | length }})</strong>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-dark table-sm table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Mes</th><th>Tipo</th><th>Cuenta</th><th>Casa/Cat.</th>
+            <th class="num-col">Cantidad</th><th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in pending_movs[:20] %}
+          <tr>
+            <td>{{ m.mes_str }}</td>
+            <td>{{ m.tipo }}</td>
+            <td>{{ m.cuenta | cuenta_label }}</td>
+            <td>{{ m.casa }}</td>
+            <td class="num-col text-warning">{{ "%.2f €" | format(m.cantidad) }}</td>
+            <td>
+              <form method="post" action="/movimientos/{{ m.row }}/estado" class="d-inline">
+                <input type="hidden" name="estado" value="Recibido">
+                <button type="submit" class="btn btn-success btn-sm py-0">
+                  <i class="bi bi-check-lg"></i> Recibido
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Últimos movimientos -->
+<div class="card">
+  <div class="card-header d-flex justify-content-between">
+    <strong><i class="bi bi-list-ul me-2"></i>Últimos Movimientos</strong>
+    <a href="/movimientos" class="btn btn-outline-secondary btn-sm">Ver todos</a>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-dark table-sm table-striped table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Mes</th><th>Tipo</th><th>Cuenta</th><th>Casa/Cat.</th>
+            <th class="num-col">Cantidad</th><th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in recent_movs %}
+          <tr>
+            <td>{{ m.mes_str }}</td>
+            <td>{{ m.tipo }}</td>
+            <td>{{ m.cuenta | cuenta_label }}</td>
+            <td>{{ m.casa }}</td>
+            <td class="num-col">{{ "%.2f €" | format(m.cantidad) }}</td>
+            <td>
+              {% if m.estado == 'Pendiente' %}
+                <span class="badge badge-p">Pendiente</span>
+              {% else %}
+                <span class="badge bg-success">Recibido</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

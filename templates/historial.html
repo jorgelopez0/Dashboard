@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Historial — CASH{% endblock %}
+{% block content %}
+
+<h5 class="mb-3"><i class="bi bi-bar-chart-line me-2"></i>Historial Mensual</h5>
+
+<!-- Filtro de meses -->
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <form method="get" class="d-flex flex-wrap align-items-center gap-2">
+      <span class="text-muted small fw-semibold me-1">Meses:</span>
+      {% for m in available_months %}
+      <div class="form-check form-check-inline m-0">
+        <input class="btn-check" type="checkbox" name="mes" value="{{ m }}" id="mes_{{ loop.index }}"
+               {% if not selected_months or m in selected_months %}checked{% endif %}>
+        <label class="btn btn-outline-secondary btn-sm py-0 px-2" for="mes_{{ loop.index }}">{{ m }}</label>
+      </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary btn-sm ms-1">Aplicar</button>
+      {% if selected_months %}
+      <a href="/historial" class="btn btn-outline-secondary btn-sm">Todos</a>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-dark table-striped table-hover table-sm mb-0">
+        <thead>
+          <tr>
+            <th>Mes</th>
+            {% for bm in bookmakers %}
+            <th class="num-col" title="{{ bm }}">{{ bm[:4] }}</th>
+            {% endfor %}
+            <th class="num-col">Bal. Apuestas</th>
+            <th class="num-col">Clases</th>
+            <th class="num-col">Papis</th>
+            <th class="num-col">Tribbu</th>
+            <th class="num-col">Entrenador</th>
+            <th class="num-col fw-bold">Bal. Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td class="fw-bold">{{ row.mes }}</td>
+            {% for bm in bookmakers %}
+            {% set v = row.get(bm, 0) %}
+            <td class="num-col {{ v | color_num }}">
+              {% if v != 0 %}{{ v | fmt_num }}{% else %}<span class="text-muted">—</span>{% endif %}
+            </td>
+            {% endfor %}
+            <td class="num-col {{ row.bal_apuestas | color_num }}">
+              {{ row.bal_apuestas | fmt_num }}
+            </td>
+            <td class="num-col text-info">
+              {% if row.clases %}{{ "%.2f" | format(row.clases) }}{% else %}—{% endif %}
+            </td>
+            <td class="num-col text-info">
+              {% if row.papis %}{{ "%.2f" | format(row.papis) }}{% else %}—{% endif %}
+            </td>
+            <td class="num-col text-info">
+              {% if row.tribbu %}{{ "%.2f" | format(row.tribbu) }}{% else %}—{% endif %}
+            </td>
+            <td class="num-col text-info">
+              {% if row.entrenador %}{{ "%.2f" | format(row.entrenador) }}{% else %}—{% endif %}
+            </td>
+            <td class="num-col fw-bold {{ row.bal_total | color_num }}">
+              {{ row.bal_total | fmt_num }}
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="{{ bookmakers | length + 7 }}" class="text-center text-muted py-4">Sin datos</td></tr>
+          {% endfor %}
+        </tbody>
+        {% if rows %}
+        <tfoot class="table-dark fw-bold border-top">
+          <tr>
+            <td>TOTAL</td>
+            {% for bm in bookmakers %}
+            {% set total = rows | sum(attribute=bm) %}
+            <td class="num-col {{ total | color_num }}">{{ total | fmt_num }}</td>
+            {% endfor %}
+            {% set total_ba = rows | sum(attribute='bal_apuestas') %}
+            {% set total_cl = rows | sum(attribute='clases') %}
+            {% set total_pa = rows | sum(attribute='papis') %}
+            {% set total_tr = rows | sum(attribute='tribbu') %}
+            {% set total_en = rows | sum(attribute='entrenador') %}
+            {% set total_bt = rows | sum(attribute='bal_total') %}
+            <td class="num-col {{ total_ba | color_num }}">{{ total_ba | fmt_num }}</td>
+            <td class="num-col text-info">{{ "%.2f" | format(total_cl) }}</td>
+            <td class="num-col text-info">{{ "%.2f" | format(total_pa) }}</td>
+            <td class="num-col text-info">{{ "%.2f" | format(total_tr) }}</td>
+            <td class="num-col text-info">{{ "%.2f" | format(total_en) }}</td>
+            <td class="num-col {{ total_bt | color_num }}">{{ total_bt | fmt_num }}</td>
+          </tr>
+        </tfoot>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+</div>
+
+<h5 class="mb-3 mt-4"><i class="bi bi-people me-2"></i>Ganancias por Cuenta (año en curso)</h5>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-dark table-striped table-hover table-sm mb-0">
+        <thead>
+          <tr>
+            <th>Mes</th>
+            <th class="num-col">Cuenta 1 (sin entrenador)</th>
+            <th class="num-col" style="padding-right:2rem">Cuenta 1 (con entrenador)</th>
+            <th class="num-col" style="padding-left:2rem">Cuenta 2</th>
+            <th class="num-col fw-bold">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows_cuenta %}
+          <tr>
+            <td class="fw-bold">{{ row.mes }}</td>
+            <td class="num-col {{ row.cuenta1_sin_entrenador | color_num }}">{{ row.cuenta1_sin_entrenador | fmt_num }}</td>
+            <td class="num-col {{ row.cuenta1 | color_num }}" style="padding-right:2rem">{{ row.cuenta1 | fmt_num }}</td>
+            <td class="num-col {{ row.cuenta2 | color_num }}" style="padding-left:2rem">{{ row.cuenta2 | fmt_num }}</td>
+            <td class="num-col fw-bold {{ row.total | color_num }}">{{ row.total | fmt_num }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="text-center text-muted py-4">Sin datos</td></tr>
+          {% endfor %}
+        </tbody>
+        {% if rows_cuenta %}
+        <tfoot class="table-dark fw-bold border-top">
+          <tr>
+            <td>TOTAL</td>
+            {% set total_c1se = rows_cuenta | sum(attribute='cuenta1_sin_entrenador') %}
+            {% set total_c1 = rows_cuenta | sum(attribute='cuenta1') %}
+            {% set total_c2 = rows_cuenta | sum(attribute='cuenta2') %}
+            {% set total_tt = rows_cuenta | sum(attribute='total') %}
+            <td class="num-col {{ total_c1se | color_num }}">{{ total_c1se | fmt_num }}</td>
+            <td class="num-col {{ total_c1 | color_num }}" style="padding-right:2rem">{{ total_c1 | fmt_num }}</td>
+            <td class="num-col {{ total_c2 | color_num }}" style="padding-left:2rem">{{ total_c2 | fmt_num }}</td>
+            <td class="num-col {{ total_tt | color_num }}">{{ total_tt | fmt_num }}</td>
+          </tr>
+        </tfoot>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
