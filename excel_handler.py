@@ -6,9 +6,17 @@ import openpyxl
 from datetime import datetime
 from collections import defaultdict
 
-EXCEL_PATH = 'cash.xlsx'
+EXCEL_PATH = os.getenv('EXCEL_PATH', 'cash.xlsx')
 BACKUP_DIR = Path(EXCEL_PATH).parent / 'excel_backups'
 MAX_BACKUPS = 50
+
+# En Render (free tier, sin disco persistente) EXCEL_PATH vive en el filesystem
+# efímero del contenedor. EXCEL_SEED_PATH puede apuntar a un Secret File de solo
+# lectura con una copia real de cash.xlsx; al arrancar se clona a EXCEL_PATH para
+# que la app tenga datos reales y pueda escribir hasta el próximo reinicio/deploy.
+_seed_path = os.getenv('EXCEL_SEED_PATH')
+if _seed_path and os.path.exists(_seed_path) and not os.path.exists(EXCEL_PATH):
+    shutil.copy2(_seed_path, EXCEL_PATH)
 
 BOOKMAKERS = ['WINAMAX', 'CODERE', 'BET365', 'GCM', 'BETFAIR', 'BWIN',
               'VERSUS', 'BETWAY', 'YOSPORTS', 'OLYBET', 'WILLIAMHILL', 'CASINOMAR BELLA']
